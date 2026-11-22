@@ -6,19 +6,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
- * Slot-management GUI for the checklist puller. The material checklist itself
- * is rendered on a CC:Tweaked Advanced Computer (see the bundled Lua program),
- * so this screen only exposes blueprint / upgrade / buffer slots and a status
- * line.
+ * Checklist puller GUI — standard MC container layout.
+ * Top: main panel with blueprint / upgrade / buffer slots and a status readout.
+ * Bottom: separate player-inventory panel. Item icons are drawn by vanilla.
  */
 public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
-    private static final int W = 196, H = 256;
+    private static final int W = PullerMenu.GUI_W, H = PullerMenu.GUI_H;
+    private static final int MAIN_H = PullerMenu.MAIN_H;
+
     private String status = "";
     private int stackLimit = 64;
     private long multiplier = 1;
     private int outputMode = 0;
 
-    /** Resolve a lang key using the client's current language. */
     private static String tr(String key, Object... args) {
         return Component.translatable(key, args).getString();
     }
@@ -29,7 +29,6 @@ public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
         this.imageHeight = H;
     }
 
-    /** Receives live state from the server (the checklist itself lives on the CC screen). */
     public void setChecklist(java.util.List<ChecklistEntry> entries, boolean pulling,
                              String status, String statusArg, int stackLimit,
                              long multiplier, int outputMode) {
@@ -48,42 +47,66 @@ public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
 
     @Override
     protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
-        int x = leftPos, y = topPos;
-        // terminal-ish dark panel
-        g.fill(x, y, x + W, y + H, 0xFF121212);
-        g.fill(x + 2, y + 2, x + W - 2, y + H - 2, 0xFF1C1C1C);
-        // blueprint slot outline
-        g.fill(x + 6, y + 18, x + 26, y + 38, 0xFF2E2E2E);
-        // upgrade slots outline (2 rows of 5)
-        g.fill(x + 96, y + 18, x + 192, y + 56, 0xFF2A2410);
-        // buffer grid outline
-        g.fill(x + 6, y + 60, x + 188, y + 152, 0xFF222222);
-        // amber accent lines (Advanced Computer look)
-        g.fill(x + 2, y + 2, x + W - 2, y + 4, 0xFFFFB000);
-        g.fill(x + 2, y + H - 4, x + W - 2, y + H - 2, 0xFFFFB000);
+        // Two clearly separated panels (classic MC beveled frame).
+        panel(g, 0, 0, W, MAIN_H);
+        panel(g, 0, MAIN_H + 4, W, H - MAIN_H - 4);
+
+        // Amber accents framing the main panel
+        g.fill(leftPos + 4, topPos + 4, leftPos + W - 4, topPos + 6, 0xFFFFB000);
+        g.fill(leftPos + 4, topPos + MAIN_H - 6, leftPos + W - 4, topPos + MAIN_H - 4, 0xFFFFB000);
+
+        // Subtle outlines for slot groups (visual only; real slots drawn by vanilla)
+        outline(g, 4, 16, 24, 26);              // blueprint slot
+        outline(g, 96, 16, 92, 44);             // upgrade slots (2x5)
+        outline(g, 4, 58, 188, 94);             // buffer grid (5x10)
+    }
+
+    private void panel(GuiGraphics g, int x, int y, int w, int h) {
+        int ax = leftPos + x, ay = topPos + y;
+        g.fill(ax, ay, ax + w, ay + h, 0xFFC6C6C6);
+        g.fill(ax, ay, ax + w, ay + 2, 0xFFFFFFFF);
+        g.fill(ax, ay, ax + 2, ay + h, 0xFFFFFFFF);
+        g.fill(ax, ay + h - 2, ax + w, ay + h, 0xFF555555);
+        g.fill(ax + w - 2, ay, ax + w, ay + h, 0xFF555555);
+        g.fill(ax + 4, ay + 4, ax + w - 4, ay + h - 4, 0xFF8B8B8B);
+    }
+
+    private void outline(GuiGraphics g, int x, int y, int w, int h) {
+        int ax = leftPos + x, ay = topPos + y;
+        g.fill(ax, ay, ax + w, ay + 1, 0xFF5A5A5A);
+        g.fill(ax, ay + h - 1, ax + w, ay + h, 0xFF5A5A5A);
+        g.fill(ax, ay, ax + 1, ay + h, 0xFF5A5A5A);
+        g.fill(ax + w - 1, ay, ax + w, ay + h, 0xFF5A5A5A);
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+        // Handled in render() with correct absolute coords.
     }
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        renderBackground(g, mouseX, mouseY, partialTick);
-        super.render(g, mouseX, mouseY, partialTick);
-        renderTooltip(g, mouseX, mouseY);
+        super.render(g, mouseX, mouseY, partialTick); // slots + items + widgets
 
         int x = leftPos, y = topPos;
+        g.drawString(font, tr("gui.luaburner.checklist_puller"), x + 8, y + 6, 0xFF7A4B00, false);
+        g.drawString(font, tr("gui.luaburner.bp"), x + 12, y + 40, 0xFF404040, false);
+        g.drawString(font, tr("gui.luaburner.upgrades"), x + 100, y + 6, 0xFF7A4B00, false);
+        g.drawString(font, tr("gui.luaburner.buffer"), x + 8, y + 50, 0xFF7A4B00, false);
 
-        g.drawString(font, tr("gui.luaburner.checklist_puller"), x + 8, y + 6, 0xFFFFB000, false);
-        g.drawString(font, tr("gui.luaburner.bp"), x + 12, y + 40, 0xFF888888, false);
-        g.drawString(font, tr("gui.luaburner.upgrades"), x + 98, y + 8, 0xFFFFB000, false);
-        g.drawString(font, tr("gui.luaburner.buffer"), x + 8, y + 50, 0xFFFFB000, false);
-
-        g.drawString(font, tr("gui.luaburner.stack_slot", stackLimit), x + 8, y + 156, 0xFFFFFFFF, false);
-        g.drawString(font, tr("gui.luaburner.mult", multiplier), x + 8, y + 168, 0xFFFFD45C, false);
+        g.drawString(font, tr("gui.luaburner.stack_slot", stackLimit), x + 8, y + 158, 0xFF202020, false);
+        g.drawString(font, tr("gui.luaburner.mult", multiplier), x + 100, y + 158, 0xFF7A4B00, false);
         g.drawString(font, tr("gui.luaburner.output",
-                        tr(outputMode == 0 ? "gui.luaburner.output_adjacent" : "gui.luaburner.output_internal")),
-                x + 8, y + 180, 0xFFFFD45C, false);
-        g.drawString(font, status.length() > 30 ? status.substring(0, 30) : status,
-                x + 8, y + 194, 0xFFAAAAAA, false);
-        g.drawString(font, tr("gui.luaburner.use_cc"), x + 8, y + H - 16,
-                0xFF8A8A8A, false);
+                tr(outputMode == 0 ? "gui.luaburner.output_adjacent" : "gui.luaburner.output_internal")),
+                x + 8, y + 172, 0xFF7A4B00, false);
+        g.drawString(font, trim(status, 30), x + 8, y + 188, 0xFF404040, false);
+        g.drawString(font, tr("gui.luaburner.use_cc"), x + 8, y + 206, 0xFF606060, false);
+
+        // Player inventory label
+        g.drawString(font, tr("gui.luaburner.inventory"), x + 8, topPos + MAIN_H + 10, 0xFF404040, false);
+
+        renderTooltip(g, mouseX, mouseY);
     }
+
+    private String trim(String s, int max) { return s.length() <= max ? s : s.substring(0, max); }
 }

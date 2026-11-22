@@ -31,7 +31,7 @@ public class BurnerBlockEntity extends BlockEntity {
     public static final int SLOT_COUNT = 2;
 
     /** Resource id of CC:Tweaked's vanilla floppy disk. */
-    private static final ResourceLocation CC_DISK_ID =
+    public static final ResourceLocation CC_DISK_ID =
             ResourceLocation.fromNamespaceAndPath("computercraft", "disk");
 
     /** Mode 0 = overwrite (truncate file, write fresh), 1 = incremental (append). */

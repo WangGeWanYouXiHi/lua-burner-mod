@@ -207,6 +207,7 @@
   "gui.luaburner.output_adjacent": "Adjacent",
   "gui.luaburner.output_internal": "Internal",
   "gui.luaburner.use_cc": "Checklist / pull: use the CC computer",
+  "gui.luaburner.inventory": "Inventory",
   "status.luaburner.idle": "Idle",
   "status.luaburner.no_disk": "No CC floppy in input slot",
   "status.luaburner.no_bp": "No blueprint selected",
@@ -221,5 +222,10 @@
   "status.luaburner.pulling": "Pulling...",
   "status.luaburner.stopped": "Stopped",
   "status.luaburner.no_requirements": "No requirements / invalid blueprint",
-  "status.luaburner.ready": "Ready"
+  "status.luaburner.ready": "Ready",
+  "tooltip.luaburner.hard_drive.capacity": "Capacity: %s GB (real CC storage)",
+  "tooltip.luaburner.hard_drive.label": "Label: %s",
+  "tooltip.luaburner.hard_drive.hint": "Put in a Disk Drive and mount in a Computer",
+  "tooltip.luaburner.floppy": "CC Floppy Disk - capacity set by the 'floppySpaceLimit' config (may be unlimited). Check in Lua: fs.getCapacity(\"disk/\")",
+  "tooltip.luaburner.floppy.suffix": " (capacity per CC config)"
 }

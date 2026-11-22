@@ -25,7 +25,8 @@ public final class NetworkHandler {
                 (msg, ctx) -> ctx.enqueueWork(() -> {
                     var screen = net.minecraft.client.Minecraft.getInstance().screen;
                     if (screen instanceof BurnerScreen bs) {
-                        SplitData d = SplitData.from(msg.data());
+                        SplitData d = SplitData.from(
+                                new String(msg.data(), java.nio.charset.StandardCharsets.UTF_8));
                         bs.setBlueprintData(d.names, d.contents, d.sizes);
                     }
                 }));
@@ -92,7 +93,7 @@ public final class NetworkHandler {
                 }));
     }
 
-    /** Serialize blueprint list into a string payload and send to one player. */
+    /** Serialize blueprint list into a byte payload and send to one player. */
     public static void sendList(ServerPlayer player, BurnerBlockEntity be) {
         List<BlueprintManager.Blueprint> bps = BlueprintManager.list(be.getLevel().getServer());
         StringBuilder sb = new StringBuilder();
@@ -102,7 +103,16 @@ public final class NetworkHandler {
             sb.append(bp.name()).append('\u001f').append(bp.sizeBytes())
                     .append('\u001f').append(content).append('\u001e');
         }
-        PacketDistributor.sendToPlayer(player, new NetworkMessages.ListPayload(sb.toString()));
+        // writeByteArray has no 32767 cap, but keep a sane guard so a huge file
+        // cannot produce an oversized payload. 8 MB is far beyond any real .lua file.
+        String raw = sb.toString();
+        byte[] bytes = raw.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        final int MAX = 8 * 1024 * 1024;
+        if (bytes.length > MAX) {
+            raw = raw.substring(0, Math.min(raw.length(), MAX / 4));
+            bytes = raw.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        }
+        PacketDistributor.sendToPlayer(player, new NetworkMessages.ListPayload(bytes));
     }
 
     /** Decode the serialized blueprint list on the client. */

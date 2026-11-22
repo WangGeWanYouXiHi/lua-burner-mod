@@ -219,6 +219,7 @@ UI_TEXT = {
     "gui.luaburner.output_adjacent": ("Adjacent", "相邻容器"),
     "gui.luaburner.output_internal": ("Internal", "内部缓冲"),
     "gui.luaburner.use_cc": ("Checklist / pull: use the CC computer", "清单 / 拉取：请用 CC 计算机操作"),
+    "gui.luaburner.inventory": ("Inventory", "物品栏"),
     "status.luaburner.idle": ("Idle", "空闲"),
     "status.luaburner.no_disk": ("No CC floppy in input slot", "输入槽没有 CC 软盘"),
     "status.luaburner.no_bp": ("No blueprint selected", "未选择蓝图"),
@@ -234,6 +235,12 @@ UI_TEXT = {
     "status.luaburner.stopped": ("Stopped", "已停止"),
     "status.luaburner.no_requirements": ("No requirements / invalid blueprint", "无需求 / 蓝图无效"),
     "status.luaburner.ready": ("Ready", "就绪"),
+    "tooltip.luaburner.hard_drive.capacity": ("Capacity: %s GB (real CC storage)", "容量：%s GB（真实 CC 存储）"),
+    "tooltip.luaburner.hard_drive.label": ("Label: %s", "标签：%s"),
+    "tooltip.luaburner.hard_drive.hint": ("Put in a Disk Drive and mount in a Computer", "放入磁盘驱动器后在电脑中挂载"),
+    "tooltip.luaburner.floppy": ("CC Floppy Disk - capacity set by the 'floppySpaceLimit' config (may be unlimited). Check in Lua: fs.getCapacity(\"disk/\")",
+                                "CC 原版软盘 - 容量由 'floppySpaceLimit' 配置决定（可能无上限）。在 Lua 中查看：fs.getCapacity(\"disk/\")"),
+    "tooltip.luaburner.floppy.suffix": (" (capacity per CC config)", "（容量由 CC 配置决定）"),
 }
 for key, (en, zh) in UI_TEXT.items():
     LANGS["en_us"][key] = en

@@ -8,6 +8,10 @@ A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It b
 
 Don't want to build from source? A ready-to-use jar is in [`prebuilt/`](prebuilt/README.md) — just drop it into your `mods/` folder. No Gradle, no JDK, no compiling. 不想自己编译？[`prebuilt/`](prebuilt/README.md) 里有现成的 jar，丢进 `mods/` 就能用。
 
+> **0.4 changelog / 更新**: fixed the "Connection Lost" disconnect when opening the burner with a large `.lua` file (the blueprint list is now sent as bytes, not a 32767-byte-capped UTF string); hard drives are now real CC media (work in Disk Drives); CC vanilla floppy tooltip shows a capacity note; both GUIs rebuilt into standard MC layout. See [`prebuilt/README.md`](prebuilt/README.md).
+>
+> 修复打开刻录机时因大 `.lua` 文件导致的"连接丢失"断连；硬盘改为真正的 CC 存储介质（可放进磁盘驱动器）；CC 原版软盘提示框显示容量说明；两个 GUI 重做为标准 MC 布局。详见 [`prebuilt/README.md`](prebuilt/README.md)。
+
 ## 语言 / Language
 
 0.3 起内置简体中文（`zh_cn.json`）：把游戏语言设为简体中文，物品名、GUI 文字、状态提示会自动切换。CC 终端程序 `cc-programs/checklist_puller.lua` 默认中文，把文件顶部的 `LANG = "zh"` 改成 `"en"` 即可切回英文。

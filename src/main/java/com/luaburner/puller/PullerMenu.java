@@ -13,6 +13,12 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 public class PullerMenu extends AbstractContainerMenu {
     public static final int BUFFER_ROWS = 5;
     public static final int BUFFER_COLS = 10;
+    public static final int GUI_W = 196, GUI_H = 344;
+    private static final int INV_X0 = 8;
+    public static final int MAIN_H = 250;              // main panel ends here
+    private static final int INV_Y = GUI_H - 82;       // 262 - player 3 rows
+    private static final int HOTBAR_Y = GUI_H - 26;    // 318
+
     private final PullerBlockEntity blockEntity;
 
     public PullerMenu(int containerId, Inventory playerInv, RegistryFriendlyByteBuf buf) {
@@ -30,13 +36,13 @@ public class PullerMenu extends AbstractContainerMenu {
         super(PullerRegistry.PULLER_MENU.get(), containerId);
         this.blockEntity = be;
 
-        // Blueprint input slot
+        // Blueprint input slot (top-left of main panel)
         addSlot(new SlotItemHandler(be.inventory, PullerBlockEntity.SLOT_BLUEPRINT, 8, 20));
 
         // 10 upgrade slots (2 rows of 5)
         for (int i = 0; i < PullerBlockEntity.UPGRADE_SLOTS; i++) {
             int col = i % 5, row = i / 5;
-            addSlot(new SlotItemHandler(be.upgrades, i, 98 + col * 18, 20 + row * 18));
+            addSlot(new SlotItemHandler(be.upgrades, i, 100 + col * 18, 20 + row * 18));
         }
 
         // 50 buffer slots (5 rows of 10)
@@ -45,12 +51,12 @@ public class PullerMenu extends AbstractContainerMenu {
             addSlot(new SlotItemHandler(be.buffer, i, 8 + col * 18, 62 + row * 18));
         }
 
-        // Player inventory
-        int invY = 62 + BUFFER_ROWS * 18 + 14; // below the buffer grid
-        for (int col = 0; col < 9; col++) addSlot(new Slot(playerInv, col, 8 + col * 18, invY));
+        // Player inventory in its own lower panel — no overlap with buffer slots.
         for (int row = 0; row < 3; row++)
             for (int col = 0; col < 9; col++)
-                addSlot(new Slot(playerInv, 9 + row * 9 + col, 8 + col * 18, invY + 18 + row * 18));
+                addSlot(new Slot(playerInv, 9 + row * 9 + col, INV_X0 + col * 18, INV_Y + row * 18));
+        for (int col = 0; col < 9; col++)
+            addSlot(new Slot(playerInv, col, INV_X0 + col * 18, HOTBAR_Y));
     }
 
     public PullerBlockEntity getBlockEntity() { return blockEntity; }

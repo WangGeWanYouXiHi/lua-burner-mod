@@ -207,6 +207,7 @@
   "gui.luaburner.output_adjacent": "相邻容器",
   "gui.luaburner.output_internal": "内部缓冲",
   "gui.luaburner.use_cc": "清单 / 拉取：请用 CC 计算机操作",
+  "gui.luaburner.inventory": "物品栏",
   "status.luaburner.idle": "空闲",
   "status.luaburner.no_disk": "输入槽没有 CC 软盘",
   "status.luaburner.no_bp": "未选择蓝图",
@@ -221,5 +222,10 @@
   "status.luaburner.pulling": "拉取中...",
   "status.luaburner.stopped": "已停止",
   "status.luaburner.no_requirements": "无需求 / 蓝图无效",
-  "status.luaburner.ready": "就绪"
+  "status.luaburner.ready": "就绪",
+  "tooltip.luaburner.hard_drive.capacity": "容量：%s GB（真实 CC 存储）",
+  "tooltip.luaburner.hard_drive.label": "标签：%s",
+  "tooltip.luaburner.hard_drive.hint": "放入磁盘驱动器后在电脑中挂载",
+  "tooltip.luaburner.floppy": "CC 原版软盘 - 容量由 'floppySpaceLimit' 配置决定（可能无上限）。在 Lua 中查看：fs.getCapacity(\"disk/\")",
+  "tooltip.luaburner.floppy.suffix": "（容量由 CC 配置决定）"
 }

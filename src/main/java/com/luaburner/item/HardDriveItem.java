@@ -1,8 +1,13 @@
 package com.luaburner.item;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 
-/** A hard drive item: 10 capacity tiers (1-10 GB) x 17 colors. No recipes yet. */
+import java.util.List;
+
+/** A hard drive item: 10 capacity tiers (1-10 GB) x 17 colors. Real CC media. */
 public class HardDriveItem extends Item {
     private final int capacityGb;
     private final ColorVariant color;
@@ -19,6 +24,17 @@ public class HardDriveItem extends Item {
 
     public ColorVariant getColor() {
         return color;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                                List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("tooltip.luaburner.hard_drive.capacity", capacityGb));
+        String label = stack.get(ModDataComponents.DISK_LABEL.get());
+        if (label != null && !label.isEmpty()) {
+            tooltip.add(Component.translatable("tooltip.luaburner.hard_drive.label", label));
+        }
+        tooltip.add(Component.translatable("tooltip.luaburner.hard_drive.hint"));
     }
 
     /** 17 variants: default (no dye) + 16 Minecraft dye colors. */

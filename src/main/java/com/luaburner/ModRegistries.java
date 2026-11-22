@@ -1,6 +1,10 @@
 package com.luaburner;
 
 import com.luaburner.item.HardDriveItem;
+import com.luaburner.item.HardDriveMedia;
+import com.luaburner.item.ModDataComponents;
+import dan200.computercraft.api.media.MediaCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -68,11 +72,21 @@ public final class ModRegistries {
                             BurnerMenu::new));
 
     public static void register(IEventBus bus) {
+        ModDataComponents.register(bus);
         ITEMS.register(bus);
         BLOCKS.register(bus);
         BLOCK_ENTITIES.register(bus);
         MENUS.register(bus);
         CREATIVE_TABS.register(bus);
+
+        // Make every hard drive a real CC media item: disk drives can mount it,
+        // read/write files, and set labels via disk.setLabel().
+        bus.addListener((RegisterCapabilitiesEvent event) -> {
+            net.minecraft.world.item.Item[] drives = HARD_DRIVES.values().stream()
+                    .map(DeferredItem::get).toArray(net.minecraft.world.item.Item[]::new);
+            event.registerItem(MediaCapability.get(),
+                    (stack, ctx) -> HardDriveMedia.INSTANCE, drives);
+        });
 
         // Optional checklist puller: only load its classes when Create or AE2 is present.
         if (IntegrationCaps.pullerEnabled()) {

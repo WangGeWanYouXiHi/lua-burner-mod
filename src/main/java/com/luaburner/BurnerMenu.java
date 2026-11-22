@@ -6,15 +6,20 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-/** Server/client container for the burner GUI. */
+/** Server/client container for the burner GUI. Standard MC layout: machine slots on top, player inventory below. */
 public class BurnerMenu extends AbstractContainerMenu {
+    // GUI geometry (must match BurnerScreen)
+    public static final int GUI_W = 520, GUI_H = 292;
+    // Player inventory anchor: 9-wide grid centered, hotbar near the bottom
+    private static final int INV_X0 = (GUI_W - 9 * 18) / 2; // 179
+    private static final int INV_Y = GUI_H - 82;            // 210 - main inventory 3 rows
+    private static final int HOTBAR_Y = GUI_H - 26;         // 266
+
     private final BurnerBlockEntity blockEntity;
 
-    // Data slots synced to the client
     public final DataSlot progressSlot;
     public final DataSlot modeSlot;
     public final DataSlot selectedSlot;
@@ -39,39 +44,33 @@ public class BurnerMenu extends AbstractContainerMenu {
         this.blockEntity = be;
 
         Container inv = be.getInventory();
-        // Machine slots: input (0) at top, output (1) below it
-        addSlot(new Slot(inv, BurnerBlockEntity.SLOT_INPUT, 30, 35));
-        addSlot(new Slot(inv, BurnerBlockEntity.SLOT_OUTPUT, 30, 75) {
+        // Machine slots live in the dedicated left column of the main panel (y < 196).
+        addSlot(new Slot(inv, BurnerBlockEntity.SLOT_INPUT, 16, 40));
+        addSlot(new Slot(inv, BurnerBlockEntity.SLOT_OUTPUT, 16, 66) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false; // output slot is read-only to the player
             }
         });
 
-        // Player inventory: 9 hotbar + 3x9
-        for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInv, col, 8 + col * 18, 142));
-        }
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInv, 9 + row * 9 + col, 8 + col * 18, 84 + row * 18));
-            }
-        }
+        // Player inventory: 3 rows + hotbar, in the lower panel, centered.
+        for (int row = 0; row < 3; row++)
+            for (int col = 0; col < 9; col++)
+                addSlot(new Slot(playerInv, 9 + row * 9 + col, INV_X0 + col * 18, INV_Y + row * 18));
+        for (int col = 0; col < 9; col++)
+            addSlot(new Slot(playerInv, col, INV_X0 + col * 18, HOTBAR_Y));
 
         progressSlot = addDataSlot(DataSlot.standalone());
         modeSlot = addDataSlot(DataSlot.standalone());
         selectedSlot = addDataSlot(DataSlot.standalone());
         burningSlot = addDataSlot(DataSlot.standalone());
 
-        // Initial values from the block entity
         progressSlot.set(be.progress);
         modeSlot.set(be.mode);
         selectedSlot.set(be.selectedIndex);
     }
 
-    public BurnerBlockEntity getBlockEntity() {
-        return blockEntity;
-    }
+    public BurnerBlockEntity getBlockEntity() { return blockEntity; }
 
     @Override
     public boolean stillValid(Player player) {
@@ -97,10 +96,8 @@ public class BurnerMenu extends AbstractContainerMenu {
             ItemStack stack = slot.getItem();
             result = stack.copy();
             if (index < 2) {
-                // machine slots -> player inventory
                 if (!moveItemStackTo(stack, 2, 38, true)) return ItemStack.EMPTY;
             } else {
-                // player inventory -> input slot if it's a vanilla CC floppy
                 if (BurnerBlockEntity.isVanillaDisk(stack)) {
                     if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
                 } else if (!moveItemStackTo(stack, 2, 38, false)) {

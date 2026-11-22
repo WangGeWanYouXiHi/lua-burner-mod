@@ -21,13 +21,18 @@ public final class NetworkMessages {
     public static final ResourceLocation STATUS_ID =
             ResourceLocation.fromNamespaceAndPath(LuaBurnerMod.MOD_ID, "burn_status");
 
-    /** S->C: serialized blueprint list (one JSON-ish line per blueprint) + preview. */
-    public record ListPayload(String data) implements CustomPacketPayload {
+    /**
+     * S->C: serialized blueprint list (one record per blueprint) + preview content.
+     * Sent as UTF-8 bytes, NOT writeUtf: writeUtf has a hard 32767-byte cap and
+     * throws EncoderException (client "Connection Lost") when a .lua file is large.
+     * writeByteArray uses a VarInt length prefix and has no such cap.
+     */
+    public record ListPayload(byte[] data) implements CustomPacketPayload {
         public static final Type<ListPayload> TYPE = new Type<>(LIST_ID);
         public static final StreamCodec<RegistryFriendlyByteBuf, ListPayload> CODEC =
                 StreamCodec.of(
-                        (buf, msg) -> buf.writeUtf(msg.data),
-                        buf -> new ListPayload(buf.readUtf()));
+                        (buf, msg) -> buf.writeByteArray(msg.data),
+                        buf -> new ListPayload(buf.readByteArray()));
         @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 

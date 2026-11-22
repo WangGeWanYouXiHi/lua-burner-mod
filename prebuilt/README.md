@@ -8,14 +8,25 @@ Can't build the mod because Gradle or the dependencies won't download? Grab the 
 
 | File | Version | Size |
 | --- | --- | --- |
-| `lua-burner-mod-0.3.0.jar` | 0.3（内置中文 / Chinese included） | 184 KB |
+| `lua-burner-mod-0.4.0.jar` | 0.4（中文 + 硬盘/软盘/GUI 修复 + 断连修复） | 191 KB |
 
-SHA-256: `78d8003bf8c68d16eee6706bb5cbb391061650364a8a15740536981053ce2fb9`
+SHA-256: `6ff697d1ee925dcdd41d7af99df28d868e923c35279977a5df0a70d2653f1bc0`
+
+## What's new in 0.4 / 0.4 更新内容
+
+- **Fixed the "Connection Lost" crash** when opening the burner with a large `.lua` file in `lua-blueprints/`. The blueprint list is now sent as raw bytes instead of a 32767-byte-capped UTF string, so big files (40 KB+) no longer kick you from the world.
+  修复了 `lua-blueprints/` 里有大 `.lua` 文件时打开刻录机就"连接丢失"的崩溃。蓝图列表改用字节传输，不再受 32767 字节上限限制，40 KB+ 的大文件不会再把玩家踢下线。
+- **Hard drives are now real CC media**: 170 drives (1–10 GB × 17 colors) work in a Disk Drive — mount, read/write files, `disk.setLabel()`. Capacity is enforced.
+  硬盘现在是真正的 CC 存储介质：170 个硬盘（1–10 GB × 17 色）能放进磁盘驱动器挂载、读写文件、`disk.setLabel()`，容量真实生效。
+- **CC vanilla floppy tooltip** shows a capacity note (capacity is config-driven and may be unlimited — check with `fs.getCapacity("disk/")` in Lua). Item registration untouched, saves stay compatible.
+  CC 原版软盘的提示框加上容量说明（容量由配置决定、可能无上限——在 Lua 里用 `fs.getCapacity("disk/")` 查看）。不改动物品注册，存档兼容。
+- **Rebuilt both GUIs** into standard Minecraft container layout: main panel on top, separate player-inventory panel below, no overlapping slots.
+  两个 GUI 重做为标准 MC 容器布局：上方主面板 + 下方独立背包面板，槽位不再重叠。
 
 ## How to install / 怎么装
 
-1. Copy `lua-burner-mod-0.3.0.jar` into your modpack's `mods/` folder.
-   把 `lua-burner-mod-0.3.0.jar` 丢进整合包的 `mods/` 文件夹。
+1. Copy `lua-burner-mod-0.4.0.jar` into your modpack's `mods/` folder.
+   把 `lua-burner-mod-0.4.0.jar` 丢进整合包的 `mods/` 文件夹。
 2. Make sure the required dependencies below are installed.
    确保下面的必需依赖都装好了。
 3. Launch the game. Done.
@@ -48,7 +59,7 @@ The CC terminal program for the checklist puller lives one folder up, in [`cc-pr
 ## Verify the file / 校验文件
 
 ```bash
-sha256sum lua-burner-mod-0.3.0.jar
+sha256sum lua-burner-mod-0.4.0.jar
 ```
 
 The output should match the SHA-256 above. If it doesn't, the download is corrupted — re-download it.
