@@ -50,4 +50,11 @@ The CC:Tweaked API jars are vendored in `libs/` (compile-only; not shipped in th
 
 ## License
 
-MIT
+LGPL-3.0 — see [LICENSE](LICENSE) (LGPLv3) and [COPYING](COPYING) (GPLv3, which LGPLv3 incorporates).
+
+In plain terms:
+
+- **Using this mod as-is does not require you to open-source your own project.** You may depend on it, import it, and ship it inside a modpack or your own mod without releasing your source.
+- **If you modify this repository's code and distribute that modified version**, you must release your changes under LGPLv3 (dynamic linking is still fine — the copyleft applies to changes to this library itself, not to programs that use it).
+
+Copyright (c) 2026 WangGeWanYouXiHi
