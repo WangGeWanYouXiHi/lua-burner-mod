@@ -19,3 +19,6 @@ _apidoc/
 Thumbs.db
 
 # Note: libs/*.jar (CC:T API) ARE committed so the project builds out of the box.
+
+# GitHub push helper (uses env vars for token)
+push_to_github.sh
