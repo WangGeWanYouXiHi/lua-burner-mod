@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        maven { url = uri('repo') }
+    }
+    dependencies {
+        classpath 'net.neoforged:moddev-gradle:2.0.143'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'net.neoforged.moddev'
+
+group = project.mod_group
+version = project.mod_version
+
+neoForge {
+    version = project.neoforge_version
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    maven {
+        url = uri('repo')
+        metadataSources { gradleMetadata(); mavenPom(); artifact() }
+    }
+    // CC:T API jars are vendored in libs/
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    // CC:Tweaked API (compile only - the real mod provides it at runtime)
+    compileOnly files('libs/cc-tweaked-1.21.1-forge-api-1.121.0.jar')
+    compileOnly files('libs/cc-tweaked-1.21.1-core-api-1.121.0.jar')
+}
+
+// moddev plugin injects remote repos; strip them so we stay fully local (file:// only)
+afterEvaluate {
+    repositories.removeAll { true }
+    repositories.maven {
+        url = uri('repo')
+        metadataSources { gradleMetadata(); mavenPom(); artifact() }
+    }
+    repositories.flatDir { dirs 'libs' }
+}
+
+processResources {
+    filteringCharset 'UTF-8'
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand project.properties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

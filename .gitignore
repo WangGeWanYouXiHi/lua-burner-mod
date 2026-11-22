@@ -1,0 +1,21 @@
+# Gradle / build
+build/
+.gradle/
+out/
+
+# Local Maven mirror (619MB, generated - do not commit)
+repo/
+
+# Decompiled CC:T API sources (for reference only)
+_apidoc/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Note: libs/*.jar (CC:T API) ARE committed so the project builds out of the box.

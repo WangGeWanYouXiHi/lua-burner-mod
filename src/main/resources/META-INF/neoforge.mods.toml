@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "luaburner"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "${mod_authors}"
+description = "${mod_description}"
+
+[[dependencies.luaburner]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.luaburner]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21,)"
+ordering = "NONE"
+side = "BOTH"
+
+# CC:Tweaked provides the floppy disk media API we compile against.
+[[dependencies.luaburner]]
+modId = "computercraft"
+type = "required"
+versionRange = "[1.118.0,)"
+ordering = "AFTER"
+side = "BOTH"

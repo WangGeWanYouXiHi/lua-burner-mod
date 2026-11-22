@@ -1,0 +1,53 @@
+package com.luaburner;
+
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+/**
+ * Network payloads for the burner GUI.
+ * - list (S->C): the blueprint list + selected blueprint preview
+ * - burn (C->S): request to burn the selected blueprint with a given mode
+ */
+public final class NetworkMessages {
+    private NetworkMessages() {}
+
+    public static final ResourceLocation LIST_ID =
+            ResourceLocation.fromNamespaceAndPath(LuaBurnerMod.MOD_ID, "bp_list");
+    public static final ResourceLocation BURN_ID =
+            ResourceLocation.fromNamespaceAndPath(LuaBurnerMod.MOD_ID, "burn_req");
+    public static final ResourceLocation STATUS_ID =
+            ResourceLocation.fromNamespaceAndPath(LuaBurnerMod.MOD_ID, "burn_status");
+
+    /** S->C: serialized blueprint list (one JSON-ish line per blueprint) + preview. */
+    public record ListPayload(String data) implements CustomPacketPayload {
+        public static final Type<ListPayload> TYPE = new Type<>(LIST_ID);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ListPayload> CODEC =
+                StreamCodec.of(
+                        (buf, msg) -> buf.writeUtf(msg.data),
+                        buf -> new ListPayload(buf.readUtf()));
+        @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+    }
+
+    /** C->S: burn request. mode 0 = overwrite, 1 = append(incremental). */
+    public record BurnPayload(int selectedIndex, int mode) implements CustomPacketPayload {
+        public static final Type<BurnPayload> TYPE = new Type<>(BURN_ID);
+        public static final StreamCodec<RegistryFriendlyByteBuf, BurnPayload> CODEC =
+                StreamCodec.of(
+                        (buf, msg) -> { buf.writeInt(msg.selectedIndex); buf.writeInt(msg.mode); },
+                        buf -> new BurnPayload(buf.readInt(), buf.readInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+    }
+
+    /** S->C: status line (progress + message). */
+    public record StatusPayload(String message, int progress) implements CustomPacketPayload {
+        public static final Type<StatusPayload> TYPE = new Type<>(STATUS_ID);
+        public static final StreamCodec<RegistryFriendlyByteBuf, StatusPayload> CODEC =
+                StreamCodec.of(
+                        (buf, msg) -> { buf.writeUtf(msg.message); buf.writeInt(msg.progress); },
+                        buf -> new StatusPayload(buf.readUtf(), buf.readInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+    }
+}

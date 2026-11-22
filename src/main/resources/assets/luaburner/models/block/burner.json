@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "luaburner:block/burner_side",
+    "down": "luaburner:block/burner_bottom",
+    "up": "luaburner:block/burner_top",
+    "north": "luaburner:block/burner_front",
+    "south": "luaburner:block/burner_back",
+    "east": "luaburner:block/burner_side",
+    "west": "luaburner:block/burner_side"
+  }
+}
