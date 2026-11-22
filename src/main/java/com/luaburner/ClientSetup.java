@@ -13,5 +13,9 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModRegistries.BURNER_MENU.get(), BurnerScreen::new);
+        if (IntegrationCaps.pullerEnabled()) {
+            event.register(com.luaburner.puller.PullerRegistry.PULLER_MENU.get(),
+                    com.luaburner.puller.PullerScreen::new);
+        }
     }
 }

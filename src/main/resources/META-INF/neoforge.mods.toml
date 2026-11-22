@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
-license = "MIT"
+license = "LGPL-3.0-only"
 
 [[mods]]
 modId = "luaburner"
@@ -28,5 +28,20 @@ side = "BOTH"
 modId = "computercraft"
 type = "required"
 versionRange = "[1.118.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# Optional: the checklist puller machine only registers when at least one is present.
+[[dependencies.luaburner]]
+modId = "create"
+type = "optional"
+versionRange = "[6.0.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.luaburner]]
+modId = "ae2"
+type = "optional"
+versionRange = "[19.0.0,)"
 ordering = "AFTER"
 side = "BOTH"

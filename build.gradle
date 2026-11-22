@@ -36,6 +36,9 @@ dependencies {
     // CC:Tweaked API (compile only - the real mod provides it at runtime)
     compileOnly files('libs/cc-tweaked-1.21.1-forge-api-1.121.0.jar')
     compileOnly files('libs/cc-tweaked-1.21.1-core-api-1.121.0.jar')
+    // Optional integration APIs (compile only; guarded by ModList at runtime)
+    compileOnly files('libs/create-1.21.1-6.0.10.jar')
+    compileOnly files('libs/appliedenergistics2-19.2.17.jar')
 }
 
 // moddev plugin injects remote repos; strip them so we stay fully local (file:// only)

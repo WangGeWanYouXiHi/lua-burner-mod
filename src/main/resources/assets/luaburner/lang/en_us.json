@@ -2,6 +2,8 @@
   "block.luaburner.burner": "Lua Blueprint Burner",
   "item.luaburner.floppy_disk": "Lua Floppy Disk (1.44 MB)",
   "item.luaburner.burner": "Lua Blueprint Burner",
+  "block.luaburner.checklist_puller": "Blueprint Checklist Puller",
+  "item.luaburner.checklist_puller": "Blueprint Checklist Puller",
   "item.luaburner.hard_drive_1gb_default": "1 GB Hard Drive",
   "item.luaburner.hard_drive_1gb_white": "White 1 GB Hard Drive",
   "item.luaburner.hard_drive_1gb_orange": "Orange 1 GB Hard Drive",
@@ -171,5 +173,15 @@
   "item.luaburner.hard_drive_10gb_brown": "Brown 10 GB Hard Drive",
   "item.luaburner.hard_drive_10gb_green": "Green 10 GB Hard Drive",
   "item.luaburner.hard_drive_10gb_red": "Red 10 GB Hard Drive",
-  "item.luaburner.hard_drive_10gb_black": "Black 10 GB Hard Drive"
+  "item.luaburner.hard_drive_10gb_black": "Black 10 GB Hard Drive",
+  "item.luaburner.stack_upgrade_1": "Stack Upgrade 1 (x2 stack size)",
+  "item.luaburner.stack_upgrade_2": "Stack Upgrade 2 (x4 stack size)",
+  "item.luaburner.stack_upgrade_3": "Stack Upgrade 3 (x8 stack size)",
+  "item.luaburner.stack_upgrade_4": "Stack Upgrade 4 (x16 stack size)",
+  "item.luaburner.stack_upgrade_5": "Stack Upgrade 5 (x32 stack size)",
+  "item.luaburner.stack_upgrade_6": "Stack Upgrade 6 (x64 stack size)",
+  "item.luaburner.stack_upgrade_7": "Stack Upgrade 7 (x128 stack size)",
+  "item.luaburner.stack_upgrade_8": "Stack Upgrade 8 (x256 stack size)",
+  "item.luaburner.stack_upgrade_9": "Stack Upgrade 9 (x512 stack size)",
+  "item.luaburner.stack_upgrade_10": "Stack Upgrade 10 (x1024 stack size)"
 }

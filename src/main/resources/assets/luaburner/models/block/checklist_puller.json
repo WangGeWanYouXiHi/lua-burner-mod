@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "luaburner:block/checklist_puller_side",
+    "down": "luaburner:block/checklist_puller_bottom",
+    "up": "luaburner:block/checklist_puller_top",
+    "north": "luaburner:block/checklist_puller_front",
+    "south": "luaburner:block/checklist_puller_back",
+    "east": "luaburner:block/checklist_puller_side",
+    "west": "luaburner:block/checklist_puller_side"
+  }
+}

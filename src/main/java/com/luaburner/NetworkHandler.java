@@ -39,6 +39,32 @@ public final class NetworkHandler {
                     }
                 }));
 
+        // Checklist puller payloads (only when the machine is registered)
+        if (IntegrationCaps.pullerEnabled()) {
+            reg.playToClient(com.luaburner.puller.PullMessages.ChecklistPayload.TYPE,
+                    com.luaburner.puller.PullMessages.ChecklistPayload.CODEC,
+                    (msg, ctx) -> ctx.enqueueWork(() -> {
+                        var screen = net.minecraft.client.Minecraft.getInstance().screen;
+                        if (screen instanceof com.luaburner.puller.PullerScreen ps) {
+                            ps.setChecklist(msg.entries(), msg.pulling(), msg.status(),
+                                    msg.stackLimit(), msg.multiplier(), msg.outputMode());
+                        }
+                    }));
+            reg.playToServer(com.luaburner.puller.PullMessages.ActionPayload.TYPE,
+                    com.luaburner.puller.PullMessages.ActionPayload.CODEC,
+                    (msg, ctx) -> ctx.enqueueWork(() -> {
+                        ServerPlayer player = (ServerPlayer) ctx.player();
+                        var be = player.level().getBlockEntity(msg.pos());
+                        if (!(be instanceof com.luaburner.puller.PullerBlockEntity puller)) return;
+                        if (msg.action() == 0) {
+                            puller.refreshChecklist();
+                        } else if (msg.action() == 1) {
+                            puller.startPull();
+                        }
+                        com.luaburner.puller.PullMessages.sendChecklist(player, puller);
+                    }));
+        }
+
         // C->S: burn request (or selection-change = index -2, mode toggle = -1)
         reg.playToServer(NetworkMessages.BurnPayload.TYPE, NetworkMessages.BurnPayload.CODEC,
                 (msg, ctx) -> ctx.enqueueWork(() -> {

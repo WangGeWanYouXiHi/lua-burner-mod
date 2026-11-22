@@ -79,5 +79,10 @@ public final class ModRegistries {
         DATA_COMPONENTS.register(bus);
         BLOCK_ENTITIES.register(bus);
         MENUS.register(bus);
+
+        // Optional checklist puller: only load its classes when Create or AE2 is present.
+        if (IntegrationCaps.pullerEnabled()) {
+            com.luaburner.puller.PullerRegistry.register(bus);
+        }
     }
 }

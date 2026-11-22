@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "luaburner:block/checklist_puller" }
+  }
+}
