@@ -18,8 +18,9 @@ import java.util.stream.Stream;
 public final class BlueprintManager {
     public static final String FOLDER = "lua-blueprints";
 
-    /** A single blueprint file available for burning. */
-    public record Blueprint(String name, long sizeBytes, String content, int lineCount) {}
+    /** A single file available for burning. {@code data} is the raw bytes;
+     *  {@code content} is a text preview (binary bytes shown as escape text). */
+    public record Blueprint(String name, long sizeBytes, String content, int lineCount, byte[] data) {}
 
     /** Ensure the blueprint folder exists and return its path. */
     public static Path ensureFolder(MinecraftServer server) {
@@ -31,7 +32,22 @@ public final class BlueprintManager {
         return dir;
     }
 
-    /** List all .lua blueprints, sorted by name. Each entry carries its full content. */
+    /** Build a text preview from raw bytes. Invalid/binary bytes become dots so
+     *  the preview never breaks, while the raw bytes are preserved separately. */
+    private static String preview(byte[] bytes) {
+        String s = new String(bytes, StandardCharsets.UTF_8);
+        // Replace control chars (except \n and \t) with '.' for a safe preview.
+        StringBuilder out = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\n' || c == '\t') out.append(c);
+            else if (c < 0x20 || c == 0xFFFD) out.append('.');
+            else out.append(c);
+        }
+        return out.toString();
+    }
+
+    /** List all regular files (any extension), sorted by name. */
     public static List<Blueprint> list(MinecraftServer server) {
         Path dir = ensureFolder(server);
         List<Blueprint> result = new ArrayList<>();
@@ -40,17 +56,16 @@ public final class BlueprintManager {
         try (Stream<Path> stream = Files.list(dir)) {
             List<Path> files = stream
                     .filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".lua"))
                     .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                     .toList();
 
             for (Path p : files) {
                 try {
                     byte[] bytes = Files.readAllBytes(p);
-                    String content = new String(bytes, StandardCharsets.UTF_8);
+                    String content = preview(bytes);
                     int lines = content.isEmpty() ? 0 : content.split("\n", -1).length;
                     result.add(new Blueprint(p.getFileName().toString(), bytes.length,
-                            content, lines));
+                            content, lines, bytes));
                 } catch (IOException e) {
                     // Skip unreadable files.
                 }
@@ -67,9 +82,9 @@ public final class BlueprintManager {
         if (!Files.isRegularFile(file)) return null;
         try {
             byte[] bytes = Files.readAllBytes(file);
-            String content = new String(bytes, StandardCharsets.UTF_8);
+            String content = preview(bytes);
             int lines = content.isEmpty() ? 0 : content.split("\n", -1).length;
-            return new Blueprint(name, bytes.length, content, lines);
+            return new Blueprint(name, bytes.length, content, lines, bytes);
         } catch (IOException e) {
             return null;
         }

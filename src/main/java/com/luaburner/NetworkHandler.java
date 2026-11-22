@@ -99,7 +99,8 @@ public final class NetworkHandler {
         StringBuilder sb = new StringBuilder();
         for (BlueprintManager.Blueprint bp : bps) {
             // Format: name <US> size <US> content(escape newlines) <RS>
-            String content = bp.content().replace("\n", "\\n").replace("\u001e", "");
+            String content = bp.content().replace("\n", "\\n")
+                    .replace("\u001e", "").replace("\u001f", "");
             sb.append(bp.name()).append('\u001f').append(bp.sizeBytes())
                     .append('\u001f').append(content).append('\u001e');
         }

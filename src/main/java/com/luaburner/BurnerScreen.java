@@ -79,49 +79,62 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         this.progress = prog;
     }
 
+    // CC:T advanced computer palette
+    private static final int CC_BLACK = 0xFF000000;
+    private static final int CC_BG = 0xFF0F0F0B;        // terminal near-black
+    private static final int CC_AMBER = 0xFFFFB000;     // CC amber text
+    private static final int CC_YELLOW = 0xFFFFFF00;    // bright yellow
+    private static final int CC_GREEN = 0xFF33CC33;     // progress green
+    private static final int CC_BORDER = 0xFF8A8A00;    // dim yellow border
+
     @Override
     protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
-        // Main panel (classic MC container look: light frame, dark inset)
+        // CC terminal look: black panels with a thin amber border.
         panel(g, 0, 0, W, MAIN_H);
-        // Player inventory panel — separate, clearly bounded
         panel(g, 0, MAIN_H + 4, W, H - MAIN_H - 4);
 
-        // Sub-panel backgrounds inside the main panel
         subPanel(g, SLOT_X, SLOT_Y, SLOT_W, SLOT_H);
         subPanel(g, PREVIEW_X, PREVIEW_Y, PREVIEW_W, PREVIEW_H);
         subPanel(g, LIST_X, LIST_Y, LIST_W, LIST_H);
         subPanel(g, INFO_X, INFO_Y, INFO_W, INFO_H);
 
-        // Progress bar track at the bottom of the main panel
-        g.fill(leftPos + 8, topPos + MAIN_H - 12, leftPos + W - 8, topPos + MAIN_H - 4, 0xFF000000);
+        // Progress bar: terminal-style track + green fill
+        int bx = leftPos + 8, by = topPos + MAIN_H - 12, bw = W - 16, bh = 8;
+        g.fill(bx - 1, by - 1, bx + bw + 1, by + bh + 1, CC_BORDER);
+        g.fill(bx, by, bx + bw, by + bh, CC_BLACK);
         if (progress > 0) {
-            int barW = (int) ((W - 16) * progress / 100L);
-            int color = progress >= 100 ? 0xFF4CAF50 : 0xFF4A90D9;
-            g.fill(leftPos + 8, topPos + MAIN_H - 12, leftPos + 8 + barW, topPos + MAIN_H - 4, color);
+            int barW = (int) (bw * progress / 100L);
+            g.fill(bx, by, bx + barW, by + bh, progress >= 100 ? 0xFF66FF66 : CC_GREEN);
+            // scanline accents
+            for (int px = bx + 2; px < bx + barW; px += 4)
+                g.fill(px, by, px + 1, by + bh, 0xFF000000);
         }
     }
 
-    /** Classic container panel: beveled light-gray frame with darker inset. */
+    /** CC-style panel: black fill with a thin amber terminal border. */
     private void panel(GuiGraphics g, int x, int y, int w, int h) {
         int ax = leftPos + x, ay = topPos + y;
-        g.fill(ax, ay, ax + w, ay + h, 0xFFC6C6C6);          // frame body
-        g.fill(ax, ay, ax + w, ay + 2, 0xFFFFFFFF);          // top highlight
-        g.fill(ax, ay, ax + 2, ay + h, 0xFFFFFFFF);          // left highlight
-        g.fill(ax, ay + h - 2, ax + w, ay + h, 0xFF555555);  // bottom shadow
-        g.fill(ax + w - 2, ay, ax + w, ay + h, 0xFF555555);  // right shadow
-        g.fill(ax + 4, ay + 4, ax + w - 4, ay + h - 4, 0xFF8B8B8B); // inset
+        g.fill(ax, ay, ax + w, ay + h, CC_BG);
+        g.fill(ax, ay, ax + w, ay + 1, CC_BORDER);
+        g.fill(ax, ay, ax + 1, ay + h, CC_BORDER);
+        g.fill(ax, ay + h - 1, ax + w, ay + h, CC_BORDER);
+        g.fill(ax + w - 1, ay, ax + w, ay + h, CC_BORDER);
     }
 
-    /** Inset dark area for text panels. */
+    /** Inset terminal area: near-black with an amber title bar. */
     private void subPanel(GuiGraphics g, int x, int y, int w, int h) {
         int ax = leftPos + x, ay = topPos + y;
-        g.fill(ax, ay, ax + w, ay + h, 0xFF1E1E24);
-        g.fill(ax, ay, ax + w, ay + 16, 0xFF3A3A48);
+        g.fill(ax, ay, ax + w, ay + h, CC_BLACK);
+        g.fill(ax, ay, ax + w, ay + 1, CC_BORDER);
+        g.fill(ax, ay + 1, ax + 1, ay + h, CC_BORDER);
+        g.fill(ax, ay + h - 1, ax + w, ay + h, CC_BORDER);
+        g.fill(ax + w - 1, ay + 1, ax + w, ay + h, CC_BORDER);
+        g.fill(ax + 1, ay + 14, ax + w - 1, ay + 15, 0xFF4A4A00); // title bar divider
     }
 
     @Override
     protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
-        g.drawString(font, title, 8, 8, 0xFFFFFFFF, false);
+        // Draw our own CC-style title; suppress the vanilla one.
     }
 
     @Override
@@ -134,24 +147,27 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
 
         super.render(g, mouseX, mouseY, partialTick); // draws slots, items, widgets, labels
 
-        // --- Slot column labels (below the two machine slots) ---
-        g.drawString(font, tr("gui.luaburner.in"), leftPos + SLOT_X + 4, topPos + SLOT_Y + 18, 0xFFEEEEEE, false);
-        g.drawString(font, tr("gui.luaburner.out"), leftPos + SLOT_X + 4, topPos + SLOT_Y + 44, 0xFFEEEEEE, false);
+        // --- CC-style title bar ---
+        g.drawString(font, title, leftPos + 6, topPos + 6, CC_AMBER, false);
 
-        // --- Panel headings ---
-        g.drawString(font, tr("gui.luaburner.code_preview"), leftPos + PREVIEW_X + 4, topPos + PREVIEW_Y + 4, 0xFFEEEEEE, false);
-        g.drawString(font, tr("gui.luaburner.blueprints"), leftPos + LIST_X + 4, topPos + LIST_Y + 4, 0xFFEEEEEE, false);
-        g.drawString(font, tr("gui.luaburner.info"), leftPos + INFO_X + 4, topPos + INFO_Y + 4, 0xFFEEEEEE, false);
+        // --- Slot column labels (below the two machine slots) ---
+        g.drawString(font, tr("gui.luaburner.in"), leftPos + SLOT_X + 4, topPos + SLOT_Y + 18, CC_AMBER, false);
+        g.drawString(font, tr("gui.luaburner.out"), leftPos + SLOT_X + 4, topPos + SLOT_Y + 44, CC_AMBER, false);
+
+        // --- Panel headings (amber on terminal title bars) ---
+        g.drawString(font, tr("gui.luaburner.code_preview"), leftPos + PREVIEW_X + 4, topPos + PREVIEW_Y + 4, CC_AMBER, false);
+        g.drawString(font, tr("gui.luaburner.blueprints"), leftPos + LIST_X + 4, topPos + LIST_Y + 4, CC_AMBER, false);
+        g.drawString(font, tr("gui.luaburner.info"), leftPos + INFO_X + 4, topPos + INFO_Y + 4, CC_AMBER, false);
 
         drawPreview(g);
         drawBlueprintList(g);
         drawInfo(g);
 
-        // Status + progress text
-        g.drawString(font, trim(status, 60), leftPos + 8, topPos + MAIN_H - 26, 0xFFEEEEEE, false);
+        // Status line — CC terminal green prompt feel
+        g.drawString(font, "> " + trim(status, 58), leftPos + 8, topPos + MAIN_H - 26, CC_GREEN, false);
 
         // Player inventory label in the lower panel
-        g.drawString(font, tr("gui.luaburner.inventory"), leftPos + 179, topPos + MAIN_H + 10, 0xFF404040, false);
+        g.drawString(font, tr("gui.luaburner.inventory"), leftPos + 8, topPos + MAIN_H + 8, CC_AMBER, false);
 
         renderTooltip(g, mouseX, mouseY);
     }
@@ -166,7 +182,7 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
             String line = lines[i];
             if (line.length() > 36) line = line.substring(0, 36);
             g.drawString(font, String.format("%3d", i + 1) + " " + line,
-                    leftPos + PREVIEW_X + 4, y, 0xFFD0D0D0, false);
+                    leftPos + PREVIEW_X + 4, y, 0xFF66DD66, false);
             y += 10;
         }
         drawScrollbar(g, PREVIEW_X + PREVIEW_W - 6, PREVIEW_Y + 20, PREVIEW_H - 24,
@@ -181,7 +197,7 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         for (int i = startRow; i < Math.min(total, startRow + maxRows); i++) {
             String name = bpNames.get(i);
             if (name.length() > 15) name = name.substring(0, 15);
-            int color = (i == selected) ? 0xFFFFD45C : 0xFFCCCCCC;
+            int color = (i == selected) ? CC_YELLOW : CC_AMBER;
             g.drawString(font, (i == selected ? "> " : "  ") + name,
                     leftPos + LIST_X + 4, y, color, false);
             y += 12;
@@ -198,13 +214,13 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         if (!bpNames.isEmpty() && selected < bpNames.size()) {
             String name = bpNames.get(selected);
             long size = bpSizes.get(selected);
-            g.drawString(font, tr("gui.luaburner.name"), leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
-            g.drawString(font, trim(name, 14), leftPos + INFO_X + 4, iy, 0xFFFFFF00, false); iy += 18;
-            g.drawString(font, tr("gui.luaburner.size"), leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
-            g.drawString(font, size + " B", leftPos + INFO_X + 4, iy, 0xFFD0D0D0, false);
+            g.drawString(font, tr("gui.luaburner.name"), leftPos + INFO_X + 4, iy, CC_AMBER, false); iy += 10;
+            g.drawString(font, trim(name, 14), leftPos + INFO_X + 4, iy, CC_YELLOW, false); iy += 18;
+            g.drawString(font, tr("gui.luaburner.size"), leftPos + INFO_X + 4, iy, CC_AMBER, false); iy += 10;
+            g.drawString(font, size + " B", leftPos + INFO_X + 4, iy, 0xFF66DD66, false);
         } else {
-            g.drawString(font, tr("gui.luaburner.no_lua"), leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 12;
-            g.drawString(font, tr("gui.luaburner.lua_folder"), leftPos + INFO_X + 4, iy, 0xFF888888, false);
+            g.drawString(font, tr("gui.luaburner.no_lua"), leftPos + INFO_X + 4, iy, CC_AMBER, false); iy += 12;
+            g.drawString(font, tr("gui.luaburner.lua_folder"), leftPos + INFO_X + 4, iy, CC_AMBER, false);
         }
     }
 
@@ -212,11 +228,11 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
                                int maxLines, int scroll) {
         if (totalLines <= maxLines) return;
         int ax = leftPos + x, ay = topPos + y;
-        g.fill(ax, ay, ax + 4, ay + h, 0xFF000000);
+        g.fill(ax, ay, ax + 4, ay + h, CC_BLACK);
         int thumbH = Math.max(8, h * maxLines / totalLines);
         int maxScroll = Math.max(1, totalLines - maxLines);
         int thumbY = ay + (int) ((h - thumbH) * (scroll / (double) maxScroll));
-        g.fill(ax, thumbY, ax + 4, thumbY + thumbH, 0xFF888899);
+        g.fill(ax, thumbY, ax + 4, thumbY + thumbH, CC_AMBER);
     }
 
     private String trim(String s, int max) { return s.length() <= max ? s : s.substring(0, max); }

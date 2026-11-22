@@ -1,6 +1,6 @@
 # Lua Blueprint Burner
 
-A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It burns local `.lua` files onto CC:Tweaked floppy disks — no more typing 1000+ lines by hand in-game.
+A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It burns local files onto CC:Tweaked floppy disks — no more typing 1000+ lines by hand in-game.
 
 > Works together with CC:Tweaked 1.118+ (via NeoForge/Sinytra compatibility in modpacks with Synaxis / 控制学).
 
@@ -8,9 +8,11 @@ A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It b
 
 Don't want to build from source? A ready-to-use jar is in [`prebuilt/`](prebuilt/README.md) — just drop it into your `mods/` folder. No Gradle, no JDK, no compiling. 不想自己编译？[`prebuilt/`](prebuilt/README.md) 里有现成的 jar，丢进 `mods/` 就能用。
 
-> **0.4 changelog / 更新**: fixed the "Connection Lost" disconnect when opening the burner with a large `.lua` file (the blueprint list is now sent as bytes, not a 32767-byte-capped UTF string); hard drives are now real CC media (work in Disk Drives); CC vanilla floppy tooltip shows a capacity note; both GUIs rebuilt into standard MC layout. See [`prebuilt/README.md`](prebuilt/README.md).
+> **0.5 changelog / 更新**: both GUIs restyled to the CC Advanced Computer look (black panels, amber text, green progress bar); the burner now accepts **any file type** (`.py`/`.txt`/`.java`/binaries — raw bytes, no corruption); the companion `py2lua ui` program adds a clickable file-converter on an Advanced Monitor. See [`prebuilt/README.md`](prebuilt/README.md).
 >
-> 修复打开刻录机时因大 `.lua` 文件导致的"连接丢失"断连；硬盘改为真正的 CC 存储介质（可放进磁盘驱动器）；CC 原版软盘提示框显示容量说明；两个 GUI 重做为标准 MC 布局。详见 [`prebuilt/README.md`](prebuilt/README.md)。
+> 两个 GUI 改成 CC 高级计算机风格（黑底、琥珀文字、绿色进度条）；刻录机现在支持**任意文件类型**（`.py`/`.txt`/`.java`/二进制——按原始字节传输不损坏）；配套的 `py2lua ui` 程序在高级显示屏上提供可点击的文件转译界面。详见 [`prebuilt/README.md`](prebuilt/README.md)。
+>
+> **0.4**: fixed the "Connection Lost" disconnect with large files; hard drives became real CC media; CC floppy tooltip shows capacity; GUIs rebuilt into standard MC layout.
 
 ## 语言 / Language
 
@@ -33,7 +35,18 @@ Since 0.3, Simplified Chinese is bundled (`zh_cn.json`) and follows the game lan
 - **Vanilla CC floppy** — uses CC:Tweaked's own **Floppy Disk** (`computercraft:disk`); no custom disk item. Writes go through CC's `MediaCapability` / `IMedia.createDataMount`, so capacity follows your CC config.
 - **Hard drives** — 10 capacity tiers (1 GB → 10 GB) × 17 colors (default + 16 dyes) = **170 items**, procedurally generated. No recipes yet (as requested).
 - **Creative tabs** — hard drives live in their own **"Lua Hard Drives"** tab; the machine blocks and stack upgrades are added to CC:Tweaked's original **ComputerCraft** tab.
-- **Blueprint source** — drop your `.lua` files into the world save's `lua-blueprints/` folder; the GUI lists them automatically.
+- **Blueprint source** — drop **any files** (`.lua`, `.py`, `.txt`, `.java`, binaries…) into the world save's `lua-blueprints/` folder; the GUI lists them automatically. Files are written to disk as raw bytes, so even binary data survives intact.
+- **CC terminal styling** — both machine GUIs use the amber-on-black Advanced Computer palette with a green progress bar.
+
+## Python → Lua converter (`py2lua/`)
+
+A separate Lua program that runs **inside** CC:Tweaked and translates Python into Cobalt Lua. Three ways to feed it Python:
+
+- `py2lua source.py [out.lua]` — **read a file directly** (no typing). Put `.py` files on a floppy with the burner, then run this from `/disk/`.
+- `py2lua` — interactive paste mode (type `END` on a line by itself).
+- `py2lua ui` — **interactive file-converter on an Advanced Monitor**: click a file to select, click **CONVERT** to produce the `.lua`, page through the result. Requires an Advanced Monitor attached to the computer.
+
+The `ui` mode pairs with this mod: burn your `.py` to a floppy → put the floppy in the computer's disk drive → `py2lua ui` → click the file → get `output.lua` ready to run or burn onward.
 
 ## Checklist Puller (Create / AE2)
 

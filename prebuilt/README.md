@@ -8,25 +8,23 @@ Can't build the mod because Gradle or the dependencies won't download? Grab the 
 
 | File | Version | Size |
 | --- | --- | --- |
-| `lua-burner-mod-0.4.0.jar` | 0.4（中文 + 硬盘/软盘/GUI 修复 + 断连修复） | 191 KB |
+| `lua-burner-mod-0.5.0.jar` | 0.5（CC 终端风 GUI + 任意文件刻录） | 192 KB |
 
-SHA-256: `6ff697d1ee925dcdd41d7af99df28d868e923c35279977a5df0a70d2653f1bc0`
+SHA-256: `93613734c3c7b5a7228fd9c990aba6d8d17dc182c5b9326c84cce6abde49b26c`
 
-## What's new in 0.4 / 0.4 更新内容
+## What's new in 0.5 / 0.5 更新内容
 
-- **Fixed the "Connection Lost" crash** when opening the burner with a large `.lua` file in `lua-blueprints/`. The blueprint list is now sent as raw bytes instead of a 32767-byte-capped UTF string, so big files (40 KB+) no longer kick you from the world.
-  修复了 `lua-blueprints/` 里有大 `.lua` 文件时打开刻录机就"连接丢失"的崩溃。蓝图列表改用字节传输，不再受 32767 字节上限限制，40 KB+ 的大文件不会再把玩家踢下线。
-- **Hard drives are now real CC media**: 170 drives (1–10 GB × 17 colors) work in a Disk Drive — mount, read/write files, `disk.setLabel()`. Capacity is enforced.
-  硬盘现在是真正的 CC 存储介质：170 个硬盘（1–10 GB × 17 色）能放进磁盘驱动器挂载、读写文件、`disk.setLabel()`，容量真实生效。
-- **CC vanilla floppy tooltip** shows a capacity note (capacity is config-driven and may be unlimited — check with `fs.getCapacity("disk/")` in Lua). Item registration untouched, saves stay compatible.
-  CC 原版软盘的提示框加上容量说明（容量由配置决定、可能无上限——在 Lua 里用 `fs.getCapacity("disk/")` 查看）。不改动物品注册，存档兼容。
-- **Rebuilt both GUIs** into standard Minecraft container layout: main panel on top, separate player-inventory panel below, no overlapping slots.
-  两个 GUI 重做为标准 MC 容器布局：上方主面板 + 下方独立背包面板，槽位不再重叠。
+- **CC terminal-style GUIs**: both machines now use the Advanced Computer look — black panels, amber/yellow text, green progress bar and status prompt. Item slots keep vanilla rendering inside dark terminal frames.
+  两个机器的 GUI 改成 CC 高级计算机风格：黑色面板、琥珀/黄色文字、绿色进度条和状态提示符；物品槽保留原生渲染，外面套深色终端边框。
+- **Burn ANY file, not just `.lua`**: put `.py`, `.txt`, `.java`, `.json`, binaries — anything — in the world's `lua-blueprints/` folder and burn it. Files are transferred and written as raw bytes, so binary data is not corrupted. Text previews show control bytes as dots.
+  可以刻录**任意文件**，不再限于 `.lua`：把 `.py`/`.txt`/`.java`/`.json` 甚至二进制文件放进世界的 `lua-blueprints/` 文件夹都能刻。文件按原始字节传输和写入，二进制不会被破坏；文本预览把控制字符显示成点。
+- **py2lua interactive UI** (separate program, in [`py2lua/`](../py2lua/)): run `py2lua ui` on an Advanced Computer with a monitor to browse files on a floppy, click to select a `.py`, click CONVERT to produce `.lua` — no more typing code line by line.
+  py2lua 交互界面（独立程序，在 [`py2lua/`](../py2lua/)）：在带显示屏的高级计算机上运行 `py2lua ui`，即可用鼠标浏览软盘里的文件、点选 `.py`、点 CONVERT 生成 `.lua`，不用再一行行敲代码。
 
 ## How to install / 怎么装
 
-1. Copy `lua-burner-mod-0.4.0.jar` into your modpack's `mods/` folder.
-   把 `lua-burner-mod-0.4.0.jar` 丢进整合包的 `mods/` 文件夹。
+1. Copy `lua-burner-mod-0.5.0.jar` into your modpack's `mods/` folder.
+   把 `lua-burner-mod-0.5.0.jar` 丢进整合包的 `mods/` 文件夹。
 2. Make sure the required dependencies below are installed.
    确保下面的必需依赖都装好了。
 3. Launch the game. Done.
@@ -59,7 +57,7 @@ The CC terminal program for the checklist puller lives one folder up, in [`cc-pr
 ## Verify the file / 校验文件
 
 ```bash
-sha256sum lua-burner-mod-0.4.0.jar
+sha256sum lua-burner-mod-0.5.0.jar
 ```
 
 The output should match the SHA-256 above. If it doesn't, the download is corrupted — re-download it.

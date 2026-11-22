@@ -48,12 +48,12 @@ public class BurnerBlockEntity extends BlockEntity {
         }
     };
 
-    // Pending burn job (server side only)
-    private String[] pendingLines;
+    // Pending burn job (server side only) — writes RAW BYTES so binary files survive.
+    private byte[] pendingData;
     private String pendingName;
-    private int lineCursor = 0;
+    private int byteCursor = 0;
     private boolean burning = false;
-    private int pendingTotalLines = 0;
+    private int pendingTotalBytes = 0;
 
     public BurnerBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.BURNER_BE.get(), pos, state);
@@ -115,10 +115,10 @@ public class BurnerBlockEntity extends BlockEntity {
             media.setLabel(disk, bp.name());
         }
 
-        pendingLines = bp.content().split("\n", -1);
+        pendingData = bp.data();
         pendingName = bp.name();
-        lineCursor = 0;
-        pendingTotalLines = pendingLines.length;
+        byteCursor = 0;
+        pendingTotalBytes = pendingData.length;
         mode = burnMode;
         burning = true;
         progress = 0;
@@ -132,17 +132,12 @@ public class BurnerBlockEntity extends BlockEntity {
         if (!burning || level == null || level.isClientSide) return;
         MinecraftServer server = level.getServer();
 
-        int chunk = 40; // lines per tick - keeps the game responsive
-        int end = Math.min(lineCursor + chunk, pendingLines.length);
-        StringBuilder sb = new StringBuilder();
-        for (int i = lineCursor; i < end; i++) {
-            if (i > 0) sb.append('\n');
-            sb.append(pendingLines[i]);
-        }
-        byte[] bytes = sb.toString().getBytes(StandardCharsets.UTF_8);
+        int chunk = 32 * 1024; // bytes per tick - keeps the game responsive
+        int end = Math.min(byteCursor + chunk, pendingData.length);
+        byte[] bytes = java.util.Arrays.copyOfRange(pendingData, byteCursor, end);
 
         // Append on later chunks, truncate on the first chunk.
-        boolean ok = appendToDisk(diskMount(), pendingName, bytes, lineCursor == 0);
+        boolean ok = appendToDisk(diskMount(), pendingName, bytes, byteCursor == 0);
         if (!ok) {
             status = "status.luaburner.write_failed";
             statusArg = "";
@@ -152,12 +147,12 @@ public class BurnerBlockEntity extends BlockEntity {
             return;
         }
 
-        lineCursor = end;
-        progress = (int) (100L * lineCursor / Math.max(1, pendingTotalLines));
+        byteCursor = end;
+        progress = (int) (100L * byteCursor / Math.max(1, pendingTotalBytes));
         status = "status.luaburner.burning_pct";
         statusArg = String.valueOf(progress);
 
-        if (lineCursor >= pendingLines.length) {
+        if (byteCursor >= pendingData.length) {
             finishBurn();
         }
         broadcastStatus();
@@ -226,7 +221,7 @@ public class BurnerBlockEntity extends BlockEntity {
                 net.minecraft.world.level.block.Block.popResource(level, getBlockPos(), disk);
             }
         }
-        pendingLines = null;
+        pendingData = null;
     }
 
     public boolean isBurning() {
