@@ -4,6 +4,10 @@ A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It b
 
 > Works together with CC:Tweaked 1.118+ (via NeoForge/Sinytra compatibility in modpacks with Synaxis / 控制学).
 
+## Download / 下载
+
+Don't want to build from source? A ready-to-use jar is in [`prebuilt/`](prebuilt/README.md) — just drop it into your `mods/` folder. No Gradle, no JDK, no compiling. 不想自己编译？[`prebuilt/`](prebuilt/README.md) 里有现成的 jar，丢进 `mods/` 就能用。
+
 ## Features
 
 - **Blueprint burner block** — a computer-styled machine with a GUI:
@@ -76,6 +80,7 @@ The CC:Tweaked API jars are vendored in `libs/` (compile-only; not shipped in th
 
 - `src/main/java/com/luaburner/` — mod source
 - `src/main/java/com/luaburner/puller/` — checklist puller (block, BE, CC peripheral, upgrades, network)
+- `prebuilt/` — ready-to-use compiled jar + install instructions (no build required)
 - `src/main/resources/assets/luaburner/` — lang, models, textures
 - `cc-programs/checklist_puller.lua` — amber Advanced Computer UI for the puller
 - `gen_assets.py` — regenerates all textures, item models and lang entries
