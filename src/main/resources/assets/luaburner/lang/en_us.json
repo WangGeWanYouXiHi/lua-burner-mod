@@ -1,9 +1,9 @@
 {
   "block.luaburner.burner": "Lua Blueprint Burner",
-  "item.luaburner.floppy_disk": "Lua Floppy Disk (1.44 MB)",
   "item.luaburner.burner": "Lua Blueprint Burner",
   "block.luaburner.checklist_puller": "Blueprint Checklist Puller",
   "item.luaburner.checklist_puller": "Blueprint Checklist Puller",
+  "itemGroup.luaburner.hard_drives": "Lua Hard Drives",
   "item.luaburner.hard_drive_1gb_default": "1 GB Hard Drive",
   "item.luaburner.hard_drive_1gb_white": "White 1 GB Hard Drive",
   "item.luaburner.hard_drive_1gb_orange": "Orange 1 GB Hard Drive",

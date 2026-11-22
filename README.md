@@ -20,8 +20,9 @@ Don't want to build from source? A ready-to-use jar is in [`prebuilt/`](prebuilt
 - **Two burn modes**
   - **Overwrite** — wipe the disk, write only the selected Lua file
   - **Incremental** — keep existing files, append the selected file (burn multiple files into one disk)
-- **Floppy disk** — fixed **1.44 MB** capacity (real 3.5" floppy size), registered as a CC:Tweaked writable media item via `MediaCapability`
+- **Vanilla CC floppy** — uses CC:Tweaked's own **Floppy Disk** (`computercraft:disk`); no custom disk item. Writes go through CC's `MediaCapability` / `IMedia.createDataMount`, so capacity follows your CC config.
 - **Hard drives** — 10 capacity tiers (1 GB → 10 GB) × 17 colors (default + 16 dyes) = **170 items**, procedurally generated. No recipes yet (as requested).
+- **Creative tabs** — hard drives live in their own **"Lua Hard Drives"** tab; the machine blocks and stack upgrades are added to CC:Tweaked's original **ComputerCraft** tab.
 - **Blueprint source** — drop your `.lua` files into the world save's `lua-blueprints/` folder; the GUI lists them automatically.
 
 ## Checklist Puller (Create / AE2)
@@ -53,9 +54,9 @@ A second machine that reads a Create **schematic/blueprint** and pulls every mis
 
 1. Install alongside CC:Tweaked (and your pack's NeoForge compatibility layer).
 2. Copy your `.lua` files into `<world save>/lua-blueprints/`.
-3. Place the **Lua Blueprint Burner** block and right-click it.
+3. Find the **Lua Blueprint Burner** in the **ComputerCraft** creative tab, place it and right-click it.
 4. Scroll the blueprint list to pick a file, review the preview, choose Overwrite/Incremental.
-5. Put a floppy in the **IN** slot, click **Burn to Disk**, watch the progress bar.
+5. Put a **vanilla CC Floppy Disk** in the **IN** slot, click **Burn to Disk**, watch the progress bar.
 6. Take the burned disk from the **OUT** slot. Insert it into a CC:T disk drive — the file appears on `disk/`.
 
 **Checklist Puller:**

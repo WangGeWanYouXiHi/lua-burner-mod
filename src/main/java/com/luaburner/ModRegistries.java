@@ -1,14 +1,13 @@
 package com.luaburner;
 
-import com.luaburner.item.FloppyDiskItem;
 import com.luaburner.item.HardDriveItem;
-import com.mojang.serialization.Codec;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -26,24 +25,12 @@ public final class ModRegistries {
             DeferredRegister.createItems(LuaBurnerMod.MOD_ID);
     public static final DeferredRegister.Blocks BLOCKS =
             DeferredRegister.createBlocks(LuaBurnerMod.MOD_ID);
-    public static final DeferredRegister.DataComponents DATA_COMPONENTS =
-            DeferredRegister.createDataComponents(LuaBurnerMod.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, LuaBurnerMod.MOD_ID);
     public static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(Registries.MENU, LuaBurnerMod.MOD_ID);
-
-    // ---- Data components for floppy disks ----
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DISK_ID =
-            DATA_COMPONENTS.registerComponentType("disk_id",
-                    b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> DISK_LABEL =
-            DATA_COMPONENTS.registerComponentType("disk_label",
-                    b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
-
-    // ---- Floppy disk (1.44 MB, CC:T media) ----
-    public static final DeferredItem<FloppyDiskItem> FLOPPY_DISK =
-            ITEMS.register("floppy_disk", FloppyDiskItem::new);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LuaBurnerMod.MOD_ID);
 
     // ---- Hard drives: 10 capacities x 17 colors = 170 items ----
     /** key = "hard_drive_<gb>gb_<color>" */
@@ -58,6 +45,13 @@ public final class ModRegistries {
             }
         }
     }
+
+    // ---- Creative tab dedicated to the 170 hard drives ----
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> HARD_DRIVE_TAB =
+            CREATIVE_TABS.register("hard_drives", () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.luaburner.hard_drives"))
+                    .icon(() -> new ItemStack(HARD_DRIVES.values().iterator().next().get()))
+                    .build());
 
     // ---- Burner machine ----
     public static final DeferredBlock<Block> BURNER =
@@ -76,9 +70,9 @@ public final class ModRegistries {
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
         BLOCKS.register(bus);
-        DATA_COMPONENTS.register(bus);
         BLOCK_ENTITIES.register(bus);
         MENUS.register(bus);
+        CREATIVE_TABS.register(bus);
 
         // Optional checklist puller: only load its classes when Create or AE2 is present.
         if (IntegrationCaps.pullerEnabled()) {

@@ -100,8 +100,8 @@ public class BurnerMenu extends AbstractContainerMenu {
                 // machine slots -> player inventory
                 if (!moveItemStackTo(stack, 2, 38, true)) return ItemStack.EMPTY;
             } else {
-                // player inventory -> input slot if it's a floppy
-                if (stack.getItem() instanceof com.luaburner.item.FloppyDiskItem) {
+                // player inventory -> input slot if it's a vanilla CC floppy
+                if (BurnerBlockEntity.isVanillaDisk(stack)) {
                     if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
                 } else if (!moveItemStackTo(stack, 2, 38, false)) {
                     return ItemStack.EMPTY;

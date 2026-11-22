@@ -8,9 +8,9 @@ Can't build the mod because Gradle or the dependencies won't download? Grab the 
 
 | File | Version | Size |
 | --- | --- | --- |
-| `lua-burner-mod-1.0.0.jar` | 1.0.0 | 186 KB |
+| `lua-burner-mod-1.0.0.jar` | 0.2 (was alpha-0.1) | 184 KB |
 
-SHA-256: `0ddf761eb56e0abef44645380346be0c3945dc2d28b28a5024e0075158906f0c`
+SHA-256: `1c01d56635369e7e28eea1b3e2caaed20557e05b5ab05ad74a4c73da56e4ed6c`
 
 ## How to install / 怎么装
 

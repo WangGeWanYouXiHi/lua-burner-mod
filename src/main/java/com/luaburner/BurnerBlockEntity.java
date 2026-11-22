@@ -1,11 +1,17 @@
 package com.luaburner;
 
-import com.luaburner.item.FloppyDiskItem;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.api.media.MediaCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Block entity holding the burner's inventory and burn-job state. */
@@ -25,7 +30,11 @@ public class BurnerBlockEntity extends BlockEntity {
     public static final int SLOT_OUTPUT = 1;
     public static final int SLOT_COUNT = 2;
 
-    /** Mode 0 = overwrite (clear disk, write file), 1 = incremental (append file). */
+    /** Resource id of CC:Tweaked's vanilla floppy disk. */
+    private static final ResourceLocation CC_DISK_ID =
+            ResourceLocation.fromNamespaceAndPath("computercraft", "disk");
+
+    /** Mode 0 = overwrite (truncate file, write fresh), 1 = incremental (append). */
     public int mode = 0;
     public int selectedIndex = 0;
     public int progress = 0; // 0..100, synced to GUI via data slot
@@ -34,7 +43,7 @@ public class BurnerBlockEntity extends BlockEntity {
     private final SimpleContainer inventory = new SimpleContainer(SLOT_COUNT) {
         @Override
         public boolean canPlaceItem(int slot, ItemStack stack) {
-            return slot == SLOT_INPUT && stack.getItem() instanceof FloppyDiskItem;
+            return slot == SLOT_INPUT && isVanillaDisk(stack);
         }
     };
 
@@ -43,11 +52,21 @@ public class BurnerBlockEntity extends BlockEntity {
     private String pendingName;
     private int lineCursor = 0;
     private boolean burning = false;
-    private int pendingDiskId = -1;
     private int pendingTotalLines = 0;
 
     public BurnerBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.BURNER_BE.get(), pos, state);
+    }
+
+    /** True only for CC:Tweaked's own floppy disk item (computercraft:disk). */
+    public static boolean isVanillaDisk(ItemStack stack) {
+        return !stack.isEmpty()
+                && BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(CC_DISK_ID);
+    }
+
+    /** Obtain the CC media handler for a disk (null if the item is not media). */
+    private static IMedia mediaOf(ItemStack stack) {
+        return MediaCapability.get().getCapability(stack, null);
     }
 
     public SimpleContainer getInventory() {
@@ -72,8 +91,8 @@ public class BurnerBlockEntity extends BlockEntity {
     public void startBurn(MinecraftServer server, int index, int burnMode) {
         if (burning) return;
         ItemStack disk = inventory.getItem(SLOT_INPUT);
-        if (!(disk.getItem() instanceof FloppyDiskItem)) {
-            status = "No disk in input slot";
+        if (!isVanillaDisk(disk)) {
+            status = "No CC floppy in input slot";
             progress = 0;
             broadcastStatus();
             return;
@@ -87,16 +106,11 @@ public class BurnerBlockEntity extends BlockEntity {
         }
         BlueprintManager.Blueprint bp = bps.get(index);
 
-        // Overwrite = allocate a fresh disk id (wipes the old filesystem).
-        // Incremental = reuse the existing id so previous files remain.
-        if (burnMode == 0) {
-            FloppyDiskItem.setDiskId(disk, -1); // sentinel: force re-allocation
-            // clear the sentinel so ensureDiskId allocates a new unique dir
-            disk.remove(ModRegistries.DISK_ID);
+        // Let CC allocate the disk id / save dir on first write. Set the disk label now.
+        IMedia media = mediaOf(disk);
+        if (media != null) {
+            media.setLabel(disk, bp.name());
         }
-        int id = FloppyDiskItem.ensureDiskId(disk, server);
-        pendingDiskId = id;
-        disk.set(ModRegistries.DISK_LABEL, bp.name());
 
         pendingLines = bp.content().split("\n", -1);
         pendingName = bp.name();
@@ -124,7 +138,7 @@ public class BurnerBlockEntity extends BlockEntity {
         byte[] bytes = sb.toString().getBytes(StandardCharsets.UTF_8);
 
         // Append on later chunks, truncate on the first chunk.
-        boolean ok = appendToDisk(server, pendingDiskId, pendingName, bytes, lineCursor == 0);
+        boolean ok = appendToDisk(diskMount(), pendingName, bytes, lineCursor == 0);
         if (!ok) {
             status = "Write failed (disk full?)";
             burning = false;
@@ -144,6 +158,16 @@ public class BurnerBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    /** Get the writable mount for the disk currently in the input slot. */
+    private WritableMount diskMount() {
+        if (level == null || !(level instanceof ServerLevel sl)) return null;
+        ItemStack disk = inventory.getItem(SLOT_INPUT);
+        IMedia media = mediaOf(disk);
+        if (media == null) return null;
+        Mount mount = media.createDataMount(disk, sl);
+        return mount instanceof WritableMount wm ? wm : null;
+    }
+
     /** Push progress + status text to any players currently viewing this burner. */
     private void broadcastStatus() {
         if (level == null || level.isClientSide) return;
@@ -158,12 +182,13 @@ public class BurnerBlockEntity extends BlockEntity {
         }
     }
 
-    private boolean appendToDisk(MinecraftServer server, int id, String path,
+    private boolean appendToDisk(WritableMount mount, String path,
                                  byte[] data, boolean truncate) {
+        if (mount == null) return false;
         try {
-            var mount = dan200.computercraft.api.ComputerCraftAPI.createSaveDirMount(
-                    server, "computercraft/disk/" + id, FloppyDiskItem.CAPACITY);
-            if (mount == null) return false;
+            if (truncate && mount.exists(path)) {
+                mount.delete(path);
+            }
             var opts = new java.util.HashSet<java.nio.file.OpenOption>();
             opts.add(java.nio.file.StandardOpenOption.WRITE);
             opts.add(java.nio.file.StandardOpenOption.CREATE);

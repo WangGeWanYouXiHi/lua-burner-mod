@@ -71,17 +71,6 @@ write_png(TEX_B / "checklist_puller_top.png", 16, 16,
           lambda x, y: (55, 62, 78, 255) if 1 <= x <= 14 and 1 <= y <= 14 else (26, 30, 40, 255))
 write_png(TEX_B / "checklist_puller_bottom.png", 16, 16, lambda x, y: (32, 36, 46, 255))
 
-# ---- Floppy disk item texture 16x16 ----
-def floppy(x, y):
-    if 2 <= x <= 13 and 1 <= y <= 14:
-        if 3 <= x <= 12 and 7 <= y <= 12:
-            return (220, 220, 225, 255)  # label
-        if 4 <= x <= 11 and 2 <= y <= 5:
-            return (150, 155, 165, 255)  # metal shutter
-        return (40, 42, 50, 255)  # body
-    return (0, 0, 0, 0)
-write_png(TEX_I / "floppy_disk.png", 16, 16, floppy)
-
 # ---- Hard drive item textures: 10 tiers x 17 colors ----
 COLORS = {
     "default": (120, 124, 132), "white": (245, 245, 245), "orange": (255, 120, 31),
@@ -151,18 +140,15 @@ for tier in range(1, 11):
         '{"parent":"minecraft:item/generated","textures":{"layer0":"luaburner:item/%s"}}' % name,
         encoding="utf-8")
 
-# floppy item model + burner item model
-(MOD_I / "floppy_disk.json").write_text(
-    '{"parent":"minecraft:item/generated","textures":{"layer0":"luaburner:item/floppy_disk"}}',
-    encoding="utf-8")
+# burner item model
 
 # ---- lang entries for 170 hard drives ----
 lang = {
     "block.luaburner.burner": "Lua Blueprint Burner",
-    "item.luaburner.floppy_disk": "Lua Floppy Disk (1.44 MB)",
     "item.luaburner.burner": "Lua Blueprint Burner",
     "block.luaburner.checklist_puller": "Blueprint Checklist Puller",
     "item.luaburner.checklist_puller": "Blueprint Checklist Puller",
+    "itemGroup.luaburner.hard_drives": "Lua Hard Drives",
 }
 DISPLAY = {"default": "", "white": "White ", "orange": "Orange ", "magenta": "Magenta ",
            "light_blue": "Light Blue ", "yellow": "Yellow ", "lime": "Lime ", "pink": "Pink ",
