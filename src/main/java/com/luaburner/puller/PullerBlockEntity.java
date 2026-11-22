@@ -75,7 +75,9 @@ public class PullerBlockEntity extends BlockEntity
     /** Whether the pull action is running. */
     public boolean pulling = false;
     /** Status line shown in GUI / CC terminal. */
+    /** Status is stored as a lang key; statusArg holds its optional %s argument. */
     public String status = "";
+    public String statusArg = "";
     /** 0 = push to adjacent containers first, 1 = keep everything in internal buffer. */
     public int outputMode = 0;
 
@@ -188,7 +190,8 @@ public class PullerBlockEntity extends BlockEntity
         if (++pullTickCounter % 4 != 0) return;
         ItemStack blueprint = inventory.getStackInSlot(SLOT_BLUEPRINT);
         if (blueprint.isEmpty()) {
-            status = "Insert a blueprint";
+            status = "status.luaburner.insert_bp";
+            statusArg = "";
             pulling = false;
             return;
         }
@@ -199,13 +202,15 @@ public class PullerBlockEntity extends BlockEntity
                     IntegrationCaps.ae2Available());
             if (!got.isEmpty()) {
                 distribute(got);
-                status = "Pulled " + got.getCount() + "x " + got.getHoverName().getString();
+                status = "status.luaburner.pulled";
+                statusArg = got.getCount() + "x " + got.getHoverName().getString();
                 recomputeAvailability();
                 setChanged();
                 return;
             }
         }
-        status = "Waiting for items...";
+        status = "status.luaburner.waiting";
+        statusArg = "";
     }
 
     /**
@@ -233,7 +238,8 @@ public class PullerBlockEntity extends BlockEntity
             }
         }
         if (!remaining.isEmpty()) {
-            status = "Buffer full!";
+            status = "status.luaburner.buffer_full";
+            statusArg = "";
         }
     }
 
@@ -243,15 +249,17 @@ public class PullerBlockEntity extends BlockEntity
         ItemStack blueprint = inventory.getStackInSlot(SLOT_BLUEPRINT);
         checklist = ChecklistCalculator.calculate(level, blueprint);
         recomputeAvailability();
-        status = blueprint.isEmpty() ? "Insert a blueprint"
-                : (checklist.isEmpty() ? "No requirements / invalid blueprint" : "Ready");
+        status = blueprint.isEmpty() ? "status.luaburner.insert_bp"
+                : (checklist.isEmpty() ? "status.luaburner.no_requirements" : "status.luaburner.ready");
+        statusArg = "";
         setChanged();
     }
 
     public void startPull() {
         if (checklist.isEmpty()) refreshChecklist();
         pulling = !pulling;
-        status = pulling ? "Pulling..." : "Stopped";
+        status = pulling ? "status.luaburner.pulling" : "status.luaburner.stopped";
+        statusArg = "";
         setChanged();
     }
 
@@ -295,7 +303,8 @@ public class PullerBlockEntity extends BlockEntity
     // (Called by PullerPeripheral; kept here so all world access stays in the BE.)
 
     public String ccStatus() {
-        return status == null ? "" : status;
+        if (status == null || status.isEmpty()) return "";
+        return Component.translatable(status, statusArg == null ? "" : statusArg).getString();
     }
 
     public boolean ccIsPulling() {
@@ -363,6 +372,7 @@ public class PullerBlockEntity extends BlockEntity
         tag.putBoolean("pulling", pulling);
         tag.putInt("outputMode", outputMode);
         tag.putString("status", status == null ? "" : status);
+        tag.putString("statusArg", statusArg == null ? "" : statusArg);
     }
 
     @Override
@@ -374,6 +384,7 @@ public class PullerBlockEntity extends BlockEntity
         pulling = tag.getBoolean("pulling");
         outputMode = tag.getInt("outputMode");
         status = tag.getString("status");
+        statusArg = tag.getString("statusArg");
         if (level != null && !level.isClientSide) refreshChecklist();
     }
 }

@@ -1,22 +1,80 @@
 --[[
-  checklist_puller.lua — Advanced Computer UI for the Checklist Puller machine
+  checklist_puller.lua — 清单拉取器的高级计算机终端界面
 
-  Place an Advanced Computer (or Advanced Monitor via a wired modem) next to the
-  Checklist Puller block, put this file on it, and run:
+  把高级计算机（或通过有线调制解调器连接的显示器）放在清单拉取器旁边，
+  把本文件上传上去，然后运行：
 
       checklist_puller
 
-  The program finds the nearby "checklist_puller" peripheral and renders the
-  material checklist in the classic amber/yellow Advanced Computer terminal.
+  程序会寻找附近的 "checklist_puller" 外设，并在经典的黄底高级计算机
+  终端上显示物料清单。
 
-  Keys:
-    Up/Down or mouse wheel  scroll
-    Left/Right              page
-    P                       toggle pull
-    R                       rescan blueprint
-    O                       toggle output mode (adjacent / internal)
-    Q                       quit
+  按键：
+    上/下 或 鼠标滚轮  滚动
+    左/右              翻页
+    P                  开始/停止拉取
+    R                  重新扫描蓝图
+    O                  切换输出模式（相邻容器 / 内部缓冲）
+    Q                  退出
+
+  语言：把下面的 LANG 改成 "zh"（中文）或 "en"（English）。
 ]]
+
+-- 界面语言："zh" = 中文， "en" = English
+local LANG = "zh"
+
+local TEXT = {
+    zh = {
+        title = "清单拉取器",
+        mode = "模式:%s  倍率:x%s  每格:%s",
+        pulling = "[拉取中] ",
+        idle = "[空闲]    ",
+        item = "物品",
+        have_need = "已有/需要",
+        no_bp = "未放入蓝图。",
+        footer = " P拉取  R刷新  O输出  ^v翻页 | %s",
+        error = "找不到 checklist_puller 外设。请把高级计算机放在机器旁边。",
+    },
+    en = {
+        title = "CHECKLIST PULLER",
+        mode = "Mode:%s  Mult:x%s  Slot:%s",
+        pulling = "[PULLING] ",
+        idle = "[IDLE]    ",
+        item = "ITEM",
+        have_need = "HAVE/NEED",
+        no_bp = "No blueprint inserted.",
+        footer = " P pull  R scan  O out  ^v scroll | %s",
+        error = "No checklist_puller peripheral found. Place an Advanced Computer next to the machine.",
+    },
+}
+local T = TEXT[LANG] or TEXT.en
+
+-- Cobalt Lua 5.2 的 # 和 string.sub 按字节计算；中文一个字占 3 字节。
+-- 下面两个函数按"字符"计数，避免中文被截断成乱码、表头补白错位。
+local function ulen(s)
+    local n, i = 0, 1
+    while i <= #s do
+        local b = s:byte(i)
+        if b < 128 then i = i + 1
+        elseif b < 224 then i = i + 2
+        elseif b < 240 then i = i + 3
+        else i = i + 4 end
+        n = n + 1
+    end
+    return n
+end
+
+local function usub(s, maxchars)
+    local n, i = 0, 1
+    while i <= #s do
+        local b = s:byte(i)
+        local step = b < 128 and 1 or (b < 224 and 2 or (b < 240 and 3 or 4))
+        if n >= maxchars then break end
+        i = i + step
+        n = n + 1
+    end
+    return s:sub(1, i - 1)
+end
 
 local peripheral = peripheral
 local term = term
@@ -48,7 +106,7 @@ if not p then
     end
 end
 if not p or not p.getChecklist then
-    error("No checklist_puller peripheral found. Place an Advanced Computer next to the machine.")
+    error(T.error)
 end
 
 -- Use an adjacent advanced monitor if present, else the computer's own display.
@@ -84,8 +142,8 @@ local function heading(txt)
     monitor.setTextColor(C_HEADER_T)
     monitor.setCursorPos(1, 1)
     monitor.write(" " .. txt)
-    -- pad the rest of the header row
-    local used = #txt + 2
+    -- pad the rest of the header row (count characters, not bytes)
+    local used = ulen(txt) + 2
     monitor.setCursorPos(math.min(used, W), 1)
     monitor.write(string.rep(" ", math.max(0, W - used + 1)))
     monitor.setBackgroundColor(C_BG)
@@ -116,38 +174,38 @@ end
 
 local function draw()
     clear()
-    heading("CHECKLIST PULLER")
+    heading(T.title)
     monitor.setTextColor(C_DIM)
     monitor.setCursorPos(1, 2)
     local mode = info.outputMode or "?"
     local mult = info.multiplier or 1
     local lim = info.stackLimit or 64
-    monitor.write(("Mode:%s  Mult:x%s  Slot:%s"):format(
+    monitor.write(T.mode:format(
         tostring(mode), fmt(tonumber(mult) or 1), fmt(tonumber(lim) or 64)))
 
     -- status / pull indicator line
     monitor.setCursorPos(1, 3)
     if info.pulling then
         monitor.setTextColor(C_ACCENT)
-        monitor.write("[PULLING] ")
+        monitor.write(T.pulling)
     else
         monitor.setTextColor(C_DIM)
-        monitor.write("[IDLE]    ")
+        monitor.write(T.idle)
     end
     monitor.setTextColor(C_TEXT)
-    monitor.write((status or ""):sub(1, W - 11))
+    monitor.write(usub(status or "", math.max(1, W - ulen(T.pulling) - 1)))
 
     -- column header
     monitor.setCursorPos(1, 4)
     monitor.setTextColor(C_HEADER)
-    monitor.write("ITEM")
-    monitor.setCursorPos(W - 15, 4)
-    monitor.write("HAVE/NEED")
+    monitor.write(T.item)
+    monitor.setCursorPos(W - ulen(T.have_need) + 1, 4)
+    monitor.write(T.have_need)
 
     if #checklist == 0 then
         monitor.setCursorPos(1, 6)
         monitor.setTextColor(C_DIM)
-        monitor.write("No blueprint inserted.")
+        monitor.write(T.no_bp)
     end
 
     for i = 1, rowsPerPage do
@@ -156,7 +214,8 @@ local function draw()
         if y <= H and e then
             monitor.setCursorPos(1, y)
             local name = tostring(e.name or e.id or "?")
-            if #name > W - 17 then name = name:sub(1, W - 17) end
+            local nameMax = math.max(1, W - 17) -- keep room for the HAVE/NEED column
+            if ulen(name) > nameMax then name = usub(name, nameMax) end
             local missing = tonumber(e.missing) or 0
             monitor.setTextColor(missing > 0 and C_MISS or C_OK)
             monitor.write(name)
@@ -176,8 +235,7 @@ local function draw()
     monitor.setTextColor(colors.black)
     local pos = (#checklist > 0) and (scroll + 1) .. "-" ..
             math.min(#checklist, scroll + rowsPerPage) .. "/" .. #checklist or "0/0"
-    local footer = (" P pull  R scan  O out  ^v scroll | %s"):format(pos)
-    monitor.write(footer:sub(1, W))
+    monitor.write(usub(T.footer:format(pos), W))
     monitor.setBackgroundColor(C_BG)
 end
 

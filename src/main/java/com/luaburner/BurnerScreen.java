@@ -35,8 +35,13 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
 
     private Button burnButton;
     private Button modeButton;
-    private String status = "Idle";
+    private String status = tr("status.luaburner.idle");
     private int progress = 0;
+
+    /** Resolve a lang key using the client's current language. */
+    private static String tr(String key, Object... args) {
+        return Component.translatable(key, args).getString();
+    }
 
     public BurnerScreen(BurnerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -51,14 +56,14 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         topPos = (height - H) / 2 - 10;
 
         // Mode toggle button (overwrite / incremental)
-        modeButton = Button.builder(Component.literal("Mode: Overwrite"), b -> {
+        modeButton = Button.builder(Component.translatable("gui.luaburner.mode_overwrite"), b -> {
             int next = (menu.modeSlot.get() == 0) ? 1 : 0;
             PacketDistributor.sendToServer(new NetworkMessages.BurnPayload(-1, next));
         }).bounds(leftPos + INFO_X, topPos + INFO_Y + 78, INFO_W - 4, 20).build();
         addRenderableWidget(modeButton);
 
         // Burn button (bottom-right, above progress bar)
-        burnButton = Button.builder(Component.literal("Burn to Disk"), b -> {
+        burnButton = Button.builder(Component.translatable("gui.luaburner.burn"), b -> {
             PacketDistributor.sendToServer(
                     new NetworkMessages.BurnPayload(selected, menu.modeSlot.get()));
         }).bounds(leftPos + W - 110, topPos + H - 44, 100, 20).build();
@@ -73,8 +78,8 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         previewScroll = 0;
     }
 
-    public void setStatus(String message, int prog) {
-        this.status = message;
+    public void setStatus(String key, String arg, int prog) {
+        this.status = tr(key, arg);
         this.progress = prog;
     }
 
@@ -86,11 +91,11 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         g.fill(leftPos, topPos, leftPos + W, topPos + 20, 0xFF3A3A48);
 
         // Preview panel
-        panel(g, PREVIEW_X, PREVIEW_Y, PREVIEW_W, PREVIEW_H, "Code Preview");
+        panel(g, PREVIEW_X, PREVIEW_Y, PREVIEW_W, PREVIEW_H, tr("gui.luaburner.code_preview"));
         // Blueprint list panel
-        panel(g, LIST_X, LIST_Y, LIST_W, LIST_H, "Blueprints");
+        panel(g, LIST_X, LIST_Y, LIST_W, LIST_H, tr("gui.luaburner.blueprints"));
         // Info panel
-        panel(g, INFO_X, INFO_Y, INFO_W, INFO_H, "Info");
+        panel(g, INFO_X, INFO_Y, INFO_W, INFO_H, tr("gui.luaburner.info"));
 
         // Progress bar track (bottom)
         g.fill(leftPos + 8, topPos + H - 34, leftPos + W - 8, topPos + H - 22, 0xFF000000);
@@ -121,7 +126,8 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         progress = menu.progressSlot.get();
         int mode = menu.modeSlot.get();
         selected = menu.selectedSlot.get();
-        modeButton.setMessage(Component.literal(mode == 0 ? "Mode: Overwrite" : "Mode: Incremental"));
+        modeButton.setMessage(Component.translatable(
+                mode == 0 ? "gui.luaburner.mode_overwrite" : "gui.luaburner.mode_incremental"));
 
         super.render(g, mouseX, mouseY, partialTick);
 
@@ -170,15 +176,15 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         if (!bpNames.isEmpty() && selected < bpNames.size()) {
             String name = bpNames.get(selected);
             long size = bpSizes.get(selected);
-            g.drawString(font, "Name:", leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
+            g.drawString(font, tr("gui.luaburner.name"), leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
             g.drawString(font, trim(name, 17), leftPos + INFO_X + 4, iy, 0xFFFFFF00, false); iy += 20;
-            g.drawString(font, "Size:", leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
+            g.drawString(font, tr("gui.luaburner.size"), leftPos + INFO_X + 4, iy, 0xFF888888, false); iy += 10;
             g.drawString(font, size + " B", leftPos + INFO_X + 4, iy, 0xFFD0D0D0, false); iy += 10;
-            g.drawString(font, "1.44 MB disk", leftPos + INFO_X + 4, iy, 0xFF888888, false);
+            g.drawString(font, tr("gui.luaburner.disk_capacity"), leftPos + INFO_X + 4, iy, 0xFF888888, false);
         } else {
-            g.drawString(font, "No .lua files", leftPos + INFO_X + 4, iy, 0xFF888888, false);
+            g.drawString(font, tr("gui.luaburner.no_lua"), leftPos + INFO_X + 4, iy, 0xFF888888, false);
             iy += 12;
-            g.drawString(font, "in lua-blueprints/", leftPos + INFO_X + 4, iy, 0xFF888888, false);
+            g.drawString(font, tr("gui.luaburner.lua_folder"), leftPos + INFO_X + 4, iy, 0xFF888888, false);
         }
 
         // Draw status line
@@ -190,8 +196,8 @@ public class BurnerScreen extends AbstractContainerScreen<BurnerMenu> {
         if (!in.isEmpty()) g.renderItem(in, leftPos + 28, topPos + 33);
         if (!out.isEmpty()) g.renderItem(out, leftPos + 28, topPos + 73);
 
-        g.drawString(font, "IN", leftPos + 8, topPos + 40, 0xFF888888, false);
-        g.drawString(font, "OUT", leftPos + 6, topPos + 80, 0xFF888888, false);
+        g.drawString(font, tr("gui.luaburner.in"), leftPos + 8, topPos + 40, 0xFF888888, false);
+        g.drawString(font, tr("gui.luaburner.out"), leftPos + 6, topPos + 80, 0xFF888888, false);
         renderTooltip(g, mouseX, mouseY);
     }
 

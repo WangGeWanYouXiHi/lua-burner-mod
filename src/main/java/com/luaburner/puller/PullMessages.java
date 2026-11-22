@@ -19,8 +19,8 @@ public final class PullMessages {
 
     /** S->C: full checklist state. */
     public record ChecklistPayload(BlockPos pos, java.util.List<ChecklistEntry> entries,
-                                   boolean pulling, String status, int stackLimit,
-                                   long multiplier, int outputMode) implements CustomPacketPayload {
+                                   boolean pulling, String status, String statusArg,
+                                   int stackLimit, long multiplier, int outputMode) implements CustomPacketPayload {
         public static final Type<ChecklistPayload> TYPE = new Type<>(CHECKLIST_ID);
         public static final StreamCodec<RegistryFriendlyByteBuf, ChecklistPayload> CODEC =
                 StreamCodec.of(
@@ -30,6 +30,7 @@ public final class PullMessages {
                             for (ChecklistEntry e : msg.entries) e.write(buf);
                             buf.writeBoolean(msg.pulling);
                             buf.writeUtf(msg.status == null ? "" : msg.status);
+                            buf.writeUtf(msg.statusArg == null ? "" : msg.statusArg);
                             buf.writeVarInt(msg.stackLimit);
                             buf.writeLong(msg.multiplier);
                             buf.writeVarInt(msg.outputMode);
@@ -41,10 +42,11 @@ public final class PullMessages {
                             for (int i = 0; i < n; i++) list.add(ChecklistEntry.read(buf));
                             boolean pulling = buf.readBoolean();
                             String status = buf.readUtf();
+                            String statusArg = buf.readUtf();
                             int stackLimit = buf.readVarInt();
                             long multiplier = buf.readLong();
                             int outputMode = buf.readVarInt();
-                            return new ChecklistPayload(pos, list, pulling, status,
+                            return new ChecklistPayload(pos, list, pulling, status, statusArg,
                                     stackLimit, multiplier, outputMode);
                         });
         @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
@@ -63,7 +65,7 @@ public final class PullMessages {
     public static void sendChecklist(ServerPlayer player, PullerBlockEntity be) {
         PacketDistributor.sendToPlayer(player, new ChecklistPayload(
                 be.getBlockPos(), new java.util.ArrayList<>(be.checklist),
-                be.pulling, be.status, be.stackLimit(), be.capacityMultiplier(), be.outputMode));
+                be.pulling, be.status, be.statusArg, be.stackLimit(), be.capacityMultiplier(), be.outputMode));
     }
 
     /** Called every few ticks while a player has the GUI open, to refresh counts. */

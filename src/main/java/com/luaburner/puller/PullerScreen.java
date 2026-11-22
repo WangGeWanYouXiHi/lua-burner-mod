@@ -18,6 +18,11 @@ public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
     private long multiplier = 1;
     private int outputMode = 0;
 
+    /** Resolve a lang key using the client's current language. */
+    private static String tr(String key, Object... args) {
+        return Component.translatable(key, args).getString();
+    }
+
     public PullerScreen(PullerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
         this.imageWidth = W;
@@ -26,8 +31,9 @@ public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
 
     /** Receives live state from the server (the checklist itself lives on the CC screen). */
     public void setChecklist(java.util.List<ChecklistEntry> entries, boolean pulling,
-                             String status, int stackLimit, long multiplier, int outputMode) {
-        this.status = status == null ? "" : status;
+                             String status, String statusArg, int stackLimit,
+                             long multiplier, int outputMode) {
+        this.status = status == null || status.isEmpty() ? "" : tr(status, statusArg == null ? "" : statusArg);
         this.stackLimit = stackLimit;
         this.multiplier = multiplier;
         this.outputMode = outputMode;
@@ -65,18 +71,19 @@ public class PullerScreen extends AbstractContainerScreen<PullerMenu> {
 
         int x = leftPos, y = topPos;
 
-        g.drawString(font, "Checklist Puller", x + 8, y + 6, 0xFFFFB000, false);
-        g.drawString(font, "BP", x + 12, y + 40, 0xFF888888, false);
-        g.drawString(font, "Upgrades", x + 98, y + 8, 0xFFFFB000, false);
-        g.drawString(font, "Buffer (50)", x + 8, y + 50, 0xFFFFB000, false);
+        g.drawString(font, tr("gui.luaburner.checklist_puller"), x + 8, y + 6, 0xFFFFB000, false);
+        g.drawString(font, tr("gui.luaburner.bp"), x + 12, y + 40, 0xFF888888, false);
+        g.drawString(font, tr("gui.luaburner.upgrades"), x + 98, y + 8, 0xFFFFB000, false);
+        g.drawString(font, tr("gui.luaburner.buffer"), x + 8, y + 50, 0xFFFFB000, false);
 
-        g.drawString(font, "Stack/slot: " + stackLimit, x + 8, y + 156, 0xFFFFFFFF, false);
-        g.drawString(font, "Mult: x" + multiplier, x + 8, y + 168, 0xFFFFD45C, false);
-        g.drawString(font, "Out: " + (outputMode == 0 ? "Adjacent" : "Internal"),
+        g.drawString(font, tr("gui.luaburner.stack_slot", stackLimit), x + 8, y + 156, 0xFFFFFFFF, false);
+        g.drawString(font, tr("gui.luaburner.mult", multiplier), x + 8, y + 168, 0xFFFFD45C, false);
+        g.drawString(font, tr("gui.luaburner.output",
+                        tr(outputMode == 0 ? "gui.luaburner.output_adjacent" : "gui.luaburner.output_internal")),
                 x + 8, y + 180, 0xFFFFD45C, false);
         g.drawString(font, status.length() > 30 ? status.substring(0, 30) : status,
                 x + 8, y + 194, 0xFFAAAAAA, false);
-        g.drawString(font, "Checklist / pull: use the CC computer", x + 8, y + H - 16,
+        g.drawString(font, tr("gui.luaburner.use_cc"), x + 8, y + H - 16,
                 0xFF8A8A8A, false);
     }
 }

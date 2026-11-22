@@ -35,7 +35,7 @@ public final class NetworkHandler {
                 (msg, ctx) -> ctx.enqueueWork(() -> {
                     var screen = net.minecraft.client.Minecraft.getInstance().screen;
                     if (screen instanceof BurnerScreen bs) {
-                        bs.setStatus(msg.message(), msg.progress());
+                        bs.setStatus(msg.key(), msg.arg(), msg.progress());
                     }
                 }));
 
@@ -46,7 +46,7 @@ public final class NetworkHandler {
                     (msg, ctx) -> ctx.enqueueWork(() -> {
                         var screen = net.minecraft.client.Minecraft.getInstance().screen;
                         if (screen instanceof com.luaburner.puller.PullerScreen ps) {
-                            ps.setChecklist(msg.entries(), msg.pulling(), msg.status(),
+                            ps.setChecklist(msg.entries(), msg.pulling(), msg.status(), msg.statusArg(),
                                     msg.stackLimit(), msg.multiplier(), msg.outputMode());
                         }
                     }));

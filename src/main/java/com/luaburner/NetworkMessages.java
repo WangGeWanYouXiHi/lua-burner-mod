@@ -41,13 +41,17 @@ public final class NetworkMessages {
         @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 
-    /** S->C: status line (progress + message). */
-    public record StatusPayload(String message, int progress) implements CustomPacketPayload {
+    /** S->C: status line (progress + lang key + optional argument). */
+    public record StatusPayload(String key, String arg, int progress) implements CustomPacketPayload {
         public static final Type<StatusPayload> TYPE = new Type<>(STATUS_ID);
         public static final StreamCodec<RegistryFriendlyByteBuf, StatusPayload> CODEC =
                 StreamCodec.of(
-                        (buf, msg) -> { buf.writeUtf(msg.message); buf.writeInt(msg.progress); },
-                        buf -> new StatusPayload(buf.readUtf(), buf.readInt()));
+                        (buf, msg) -> {
+                            buf.writeUtf(msg.key);
+                            buf.writeUtf(msg.arg == null ? "" : msg.arg);
+                            buf.writeInt(msg.progress);
+                        },
+                        buf -> new StatusPayload(buf.readUtf(), buf.readUtf(), buf.readInt()));
         @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 }

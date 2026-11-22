@@ -38,7 +38,8 @@ public class BurnerBlockEntity extends BlockEntity {
     public int mode = 0;
     public int selectedIndex = 0;
     public int progress = 0; // 0..100, synced to GUI via data slot
-    public String status = "Idle";
+    public String status = "status.luaburner.idle";
+    public String statusArg = "";
 
     private final SimpleContainer inventory = new SimpleContainer(SLOT_COUNT) {
         @Override
@@ -92,14 +93,16 @@ public class BurnerBlockEntity extends BlockEntity {
         if (burning) return;
         ItemStack disk = inventory.getItem(SLOT_INPUT);
         if (!isVanillaDisk(disk)) {
-            status = "No CC floppy in input slot";
+            status = "status.luaburner.no_disk";
+            statusArg = "";
             progress = 0;
             broadcastStatus();
             return;
         }
         List<BlueprintManager.Blueprint> bps = BlueprintManager.list(server);
         if (index < 0 || index >= bps.size()) {
-            status = "No blueprint selected";
+            status = "status.luaburner.no_bp";
+            statusArg = "";
             progress = 0;
             broadcastStatus();
             return;
@@ -119,7 +122,8 @@ public class BurnerBlockEntity extends BlockEntity {
         mode = burnMode;
         burning = true;
         progress = 0;
-        status = "Burning " + bp.name();
+        status = "status.luaburner.burning_file";
+        statusArg = bp.name();
         setChanged();
     }
 
@@ -140,7 +144,8 @@ public class BurnerBlockEntity extends BlockEntity {
         // Append on later chunks, truncate on the first chunk.
         boolean ok = appendToDisk(diskMount(), pendingName, bytes, lineCursor == 0);
         if (!ok) {
-            status = "Write failed (disk full?)";
+            status = "status.luaburner.write_failed";
+            statusArg = "";
             burning = false;
             progress = 0;
             setChanged();
@@ -149,7 +154,8 @@ public class BurnerBlockEntity extends BlockEntity {
 
         lineCursor = end;
         progress = (int) (100L * lineCursor / Math.max(1, pendingTotalLines));
-        status = "Burning " + progress + "%";
+        status = "status.luaburner.burning_pct";
+        statusArg = String.valueOf(progress);
 
         if (lineCursor >= pendingLines.length) {
             finishBurn();
@@ -177,7 +183,7 @@ public class BurnerBlockEntity extends BlockEntity {
                 menu.syncState();
                 net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
                         (net.minecraft.server.level.ServerPlayer) player,
-                        new NetworkMessages.StatusPayload(status, progress));
+                        new NetworkMessages.StatusPayload(status, statusArg, progress));
             }
         }
     }
@@ -206,7 +212,8 @@ public class BurnerBlockEntity extends BlockEntity {
     private void finishBurn() {
         burning = false;
         progress = 100;
-        status = "Done: " + pendingName;
+        status = "status.luaburner.done";
+        statusArg = pendingName;
         // Move the burned disk from input slot to output slot.
         ItemStack disk = inventory.getItem(SLOT_INPUT);
         inventory.setItem(SLOT_INPUT, ItemStack.EMPTY);

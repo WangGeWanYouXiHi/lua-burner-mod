@@ -8,6 +8,12 @@ A Minecraft mod (NeoForge 1.21.1) that adds a blueprint-desk style machine. It b
 
 Don't want to build from source? A ready-to-use jar is in [`prebuilt/`](prebuilt/README.md) — just drop it into your `mods/` folder. No Gradle, no JDK, no compiling. 不想自己编译？[`prebuilt/`](prebuilt/README.md) 里有现成的 jar，丢进 `mods/` 就能用。
 
+## 语言 / Language
+
+0.3 起内置简体中文（`zh_cn.json`）：把游戏语言设为简体中文，物品名、GUI 文字、状态提示会自动切换。CC 终端程序 `cc-programs/checklist_puller.lua` 默认中文，把文件顶部的 `LANG = "zh"` 改成 `"en"` 即可切回英文。
+
+Since 0.3, Simplified Chinese is bundled (`zh_cn.json`) and follows the game language automatically. The CC terminal program `cc-programs/checklist_puller.lua` defaults to Chinese — set `LANG = "en"` at the top of the file for English.
+
 ## Features
 
 - **Blueprint burner block** — a computer-styled machine with a GUI:

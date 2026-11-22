@@ -8,18 +8,24 @@ Can't build the mod because Gradle or the dependencies won't download? Grab the 
 
 | File | Version | Size |
 | --- | --- | --- |
-| `lua-burner-mod-1.0.0.jar` | 0.2 (was alpha-0.1) | 184 KB |
+| `lua-burner-mod-0.3.0.jar` | 0.3（内置中文 / Chinese included） | 184 KB |
 
-SHA-256: `1c01d56635369e7e28eea1b3e2caaed20557e05b5ab05ad74a4c73da56e4ed6c`
+SHA-256: `78d8003bf8c68d16eee6706bb5cbb391061650364a8a15740536981053ce2fb9`
 
 ## How to install / 怎么装
 
-1. Copy `lua-burner-mod-1.0.0.jar` into your modpack's `mods/` folder.
-   把 `lua-burner-mod-1.0.0.jar` 丢进整合包的 `mods/` 文件夹。
+1. Copy `lua-burner-mod-0.3.0.jar` into your modpack's `mods/` folder.
+   把 `lua-burner-mod-0.3.0.jar` 丢进整合包的 `mods/` 文件夹。
 2. Make sure the required dependencies below are installed.
    确保下面的必需依赖都装好了。
 3. Launch the game. Done.
    启动游戏，收工。
+
+## Language / 语言
+
+Since 0.3 the mod ships with Simplified Chinese (`zh_cn.json`). Set the game language to 简体中文 and all item names, GUI labels and status messages follow automatically. The CC terminal program (`cc-programs/checklist_puller.lua`) defaults to Chinese — change `LANG = "zh"` to `"en"` near the top of the file for English.
+
+0.3 起内置简体中文（`zh_cn.json`）。把游戏语言设为简体中文，物品名、GUI 文字和状态提示会自动切换。CC 终端程序（`cc-programs/checklist_puller.lua`）默认中文——把文件开头的 `LANG = "zh"` 改成 `"en"` 即可切回英文。
 
 ## Dependencies / 依赖
 
@@ -42,7 +48,7 @@ The CC terminal program for the checklist puller lives one folder up, in [`cc-pr
 ## Verify the file / 校验文件
 
 ```bash
-sha256sum lua-burner-mod-1.0.0.jar
+sha256sum lua-burner-mod-0.3.0.jar
 ```
 
 The output should match the SHA-256 above. If it doesn't, the download is corrupted — re-download it.

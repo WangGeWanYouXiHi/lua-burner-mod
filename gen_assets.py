@@ -142,31 +142,106 @@ for tier in range(1, 11):
 
 # burner item model
 
-# ---- lang entries for 170 hard drives ----
-lang = {
-    "block.luaburner.burner": "Lua Blueprint Burner",
-    "item.luaburner.burner": "Lua Blueprint Burner",
-    "block.luaburner.checklist_puller": "Blueprint Checklist Puller",
-    "item.luaburner.checklist_puller": "Blueprint Checklist Puller",
-    "itemGroup.luaburner.hard_drives": "Lua Hard Drives",
+# ---- lang entries (en_us + zh_cn) ----
+import json
+
+LANGS = {
+    "en_us": {
+        "block.luaburner.burner": "Lua Blueprint Burner",
+        "item.luaburner.burner": "Lua Blueprint Burner",
+        "block.luaburner.checklist_puller": "Blueprint Checklist Puller",
+        "item.luaburner.checklist_puller": "Blueprint Checklist Puller",
+        "itemGroup.luaburner.hard_drives": "Lua Hard Drives",
+    },
+    "zh_cn": {
+        "block.luaburner.burner": "Lua 蓝图刻录机",
+        "item.luaburner.burner": "Lua 蓝图刻录机",
+        "block.luaburner.checklist_puller": "蓝图清单拉取器",
+        "item.luaburner.checklist_puller": "蓝图清单拉取器",
+        "itemGroup.luaburner.hard_drives": "Lua 硬盘",
+    },
 }
-DISPLAY = {"default": "", "white": "White ", "orange": "Orange ", "magenta": "Magenta ",
-           "light_blue": "Light Blue ", "yellow": "Yellow ", "lime": "Lime ", "pink": "Pink ",
-           "gray": "Gray ", "light_gray": "Light Gray ", "cyan": "Cyan ", "purple": "Purple ",
-           "blue": "Blue ", "brown": "Brown ", "green": "Green ", "red": "Red ", "black": "Black "}
+
+# 170 hard drives: 10 capacities x 17 colors (en prefix, zh prefix)
+DISPLAY = [
+    ("default", "", ""),
+    ("white", "White ", "白色 "),
+    ("orange", "Orange ", "橙色 "),
+    ("magenta", "Magenta ", "品红 "),
+    ("light_blue", "Light Blue ", "浅蓝 "),
+    ("yellow", "Yellow ", "黄色 "),
+    ("lime", "Lime ", "黄绿 "),
+    ("pink", "Pink ", "粉色 "),
+    ("gray", "Gray ", "灰色 "),
+    ("light_gray", "Light Gray ", "浅灰 "),
+    ("cyan", "Cyan ", "青色 "),
+    ("purple", "Purple ", "紫色 "),
+    ("blue", "Blue ", "蓝色 "),
+    ("brown", "Brown ", "棕色 "),
+    ("green", "Green ", "绿色 "),
+    ("red", "Red ", "红色 "),
+    ("black", "Black ", "黑色 "),
+]
 for g in range(1, 11):
-    for cname, prefix in DISPLAY.items():
-        key = f"hard_drive_{g}gb_{cname}"
-        lang[f"item.luaburner.{key}"] = f"{prefix}{g} GB Hard Drive"
+    for cname, en_prefix, zh_prefix in DISPLAY:
+        key = f"item.luaburner.hard_drive_{g}gb_{cname}"
+        LANGS["en_us"][key] = f"{en_prefix}{g} GB Hard Drive"
+        LANGS["zh_cn"][key] = f"{zh_prefix}{g} GB 硬盘"
 
 # stack capacity upgrades
 for tier in range(1, 11):
-    lang[f"item.luaburner.stack_upgrade_{tier}"] = \
-        f"Stack Upgrade {tier} (x{2 ** tier} stack size)"
+    key = f"item.luaburner.stack_upgrade_{tier}"
+    LANGS["en_us"][key] = f"Stack Upgrade {tier} (x{2 ** tier} stack size)"
+    LANGS["zh_cn"][key] = f"堆叠升级 {tier}（每格 x{2 ** tier}）"
 
-import json
-(RES / "lang/en_us.json").write_text(
-    json.dumps(lang, indent=2, ensure_ascii=False), encoding="utf-8")
+# GUI labels and status messages (key: English, Chinese)
+UI_TEXT = {
+    "gui.luaburner.code_preview": ("Code Preview", "代码预览"),
+    "gui.luaburner.blueprints": ("Blueprints", "蓝图文件"),
+    "gui.luaburner.info": ("Info", "信息"),
+    "gui.luaburner.mode_overwrite": ("Mode: Overwrite", "模式：覆盖"),
+    "gui.luaburner.mode_incremental": ("Mode: Incremental", "模式：增量"),
+    "gui.luaburner.burn": ("Burn to Disk", "刻录到软盘"),
+    "gui.luaburner.name": ("Name:", "名称："),
+    "gui.luaburner.size": ("Size:", "大小："),
+    "gui.luaburner.disk_capacity": ("1.44 MB disk", "1.44 MB 软盘"),
+    "gui.luaburner.no_lua": ("No .lua files", "没有 .lua 文件"),
+    "gui.luaburner.lua_folder": ("in lua-blueprints/", "请放到 lua-blueprints/ 目录"),
+    "gui.luaburner.in": ("IN", "输入"),
+    "gui.luaburner.out": ("OUT", "输出"),
+    "gui.luaburner.checklist_puller": ("Checklist Puller", "清单拉取器"),
+    "gui.luaburner.bp": ("BP", "蓝图"),
+    "gui.luaburner.upgrades": ("Upgrades", "升级"),
+    "gui.luaburner.buffer": ("Buffer (50)", "缓冲 (50)"),
+    "gui.luaburner.stack_slot": ("Stack/slot: %s", "每格数量：%s"),
+    "gui.luaburner.mult": ("Mult: x%s", "倍率：x%s"),
+    "gui.luaburner.output": ("Out: %s", "输出：%s"),
+    "gui.luaburner.output_adjacent": ("Adjacent", "相邻容器"),
+    "gui.luaburner.output_internal": ("Internal", "内部缓冲"),
+    "gui.luaburner.use_cc": ("Checklist / pull: use the CC computer", "清单 / 拉取：请用 CC 计算机操作"),
+    "status.luaburner.idle": ("Idle", "空闲"),
+    "status.luaburner.no_disk": ("No CC floppy in input slot", "输入槽没有 CC 软盘"),
+    "status.luaburner.no_bp": ("No blueprint selected", "未选择蓝图"),
+    "status.luaburner.burning_file": ("Burning %s", "正在刻录 %s"),
+    "status.luaburner.write_failed": ("Write failed (disk full?)", "写入失败（磁盘满了？）"),
+    "status.luaburner.burning_pct": ("Burning %s%%", "正在刻录 %s%%"),
+    "status.luaburner.done": ("Done: %s", "完成：%s"),
+    "status.luaburner.insert_bp": ("Insert a blueprint", "请放入蓝图"),
+    "status.luaburner.pulled": ("Pulled %sx %s", "已拉取 %sx %s"),
+    "status.luaburner.waiting": ("Waiting for items...", "等待物品..."),
+    "status.luaburner.buffer_full": ("Buffer full!", "缓冲已满！"),
+    "status.luaburner.pulling": ("Pulling...", "拉取中..."),
+    "status.luaburner.stopped": ("Stopped", "已停止"),
+    "status.luaburner.no_requirements": ("No requirements / invalid blueprint", "无需求 / 蓝图无效"),
+    "status.luaburner.ready": ("Ready", "就绪"),
+}
+for key, (en, zh) in UI_TEXT.items():
+    LANGS["en_us"][key] = en
+    LANGS["zh_cn"][key] = zh
+
+for code, data in LANGS.items():
+    (RES / f"lang/{code}.json").write_text(
+        json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
 print("Generated:", len(list(TEX_I.glob('*.png'))), "item textures,",
-      len(lang), "lang entries")
+      len(LANGS["en_us"]), "en_us entries,", len(LANGS["zh_cn"]), "zh_cn entries")
